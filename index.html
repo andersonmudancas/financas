@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Financeira Inteligente - V9</title>
+    <title>Gestão Financeira Inteligente - V11</title>
     <style>
-        :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; }
+        :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
         
         #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -13,20 +13,23 @@
         .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
 
         #conteudo-principal { display: none; padding: 20px; }
-        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .container { max-width: 1300px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         
         .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
         
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; border-top: 1px dashed #ccc; padding-top: 20px; }
+        
         .card { padding: 15px; border-radius: 8px; color: white; text-align: center; }
-        .card h4 { margin: 0 0 10px 0; font-size: 0.9em; text-transform: uppercase; opacity: 0.9; }
-        .card p { margin: 0; font-size: 1.4em; font-weight: bold; }
+        .card h4 { margin: 0 0 10px 0; font-size: 0.85em; text-transform: uppercase; opacity: 0.9; }
+        .card p { margin: 0; font-size: 1.2em; font-weight: bold; }
         
         .rec-recebida { background: var(--primary); }
-        .rec-pendente { background: #1abc9c; border: 2px solid #16a085; }
+        .rec-pendente { background: #1abc9c; }
         .des-paga { background: var(--info); }
         .des-pendente { background: var(--danger); }
         .saldo-total { background: var(--dark); }
+        .card-cartao { background: var(--purple); }
 
         .section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
         .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
@@ -34,7 +37,7 @@
         input, select, button { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
         button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; }
         .btn-add { background: var(--primary); color: white; }
-        .btn-backup { background: #8e44ad; color: white; font-size: 11px; padding: 5px 10px; }
+        .btn-backup { background: var(--purple); color: white; font-size: 11px; padding: 5px 10px; }
 
         .cartao-item { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; font-size: 12px; }
         .btn-del-cartao { color: var(--danger); cursor: pointer; margin-left: 5px; font-weight: bold; }
@@ -65,7 +68,7 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira Inteligente</h2>
+                <h2 style="margin:0">💰 Gestão Financeira V11</h2>
                 <div style="margin-top:10px;">
                     <button class="btn-backup" onclick="exportarDados()">💾 Exportar Banco</button>
                     <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar Banco</button>
@@ -73,7 +76,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <strong>Mês:</strong>
+                <strong>Mês Filtro:</strong>
                 <input type="month" id="filtroMes" onchange="renderizar()">
                 <button onclick="location.reload()" style="background:#ddd;">SAIR</button>
             </div>
@@ -82,16 +85,18 @@
         <div class="dashboard">
             <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0,00</p></div>
             <div class="card rec-pendente"><h4>Rec. Pendente</h4><p id="total-rec-pen">R$ 0,00</p></div>
-            <div class="card des-paga"><h4>Pago</h4><p id="total-des-ok">R$ 0,00</p></div>
-            <div class="card des-pendente"><h4>A Pagar</h4><p id="total-des-pen">R$ 0,00</p></div>
+            <div class="card des-paga"><h4>Despesa Paga</h4><p id="total-des-ok">R$ 0,00</p></div>
+            <div class="card des-pendente"><h4>Despesa Pendente</h4><p id="total-des-pen">R$ 0,00</p></div>
             <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0,00</p></div>
         </div>
+
+        <div class="dashboard-cartoes" id="dash-cartoes"></div>
 
         <div class="section">
             <div class="grid-form">
                 <input type="text" id="nomeCartao" placeholder="Nome do Cartão">
                 <input type="number" id="vencimentoCartao" placeholder="Dia Vencimento">
-                <button class="btn-add" style="background:var(--info)" onclick="adicionarCartao()">SALVAR CARTÃO</button>
+                <button class="btn-add" style="background:var(--purple)" onclick="adicionarCartao()">+ NOVO CARTÃO</button>
             </div>
             <div id="listaCartoes" style="margin-top:10px; font-size: 12px; color: #7f8c8d;"></div>
             
@@ -129,12 +134,12 @@
 </div>
 
 <script>
-    let senhaSalva = localStorage.getItem('fin_senha_v9');
+    let senhaSalva = localStorage.getItem('fin_senha_v11');
     if(senhaSalva) document.getElementById('titulo-login').innerText = "Acesso Restrito";
 
     function verificarLogin() {
         const pass = document.getElementById('campo-senha').value;
-        if(!senhaSalva) { localStorage.setItem('fin_senha_v9', pass); senhaSalva = pass; }
+        if(!senhaSalva) { localStorage.setItem('fin_senha_v11', pass); senhaSalva = pass; }
         if(pass === senhaSalva) {
             document.getElementById('tela-login').style.display = 'none';
             document.getElementById('conteudo-principal').style.display = 'block';
@@ -142,8 +147,8 @@
         } else alert("Senha Incorreta!");
     }
 
-    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v9')) || [];
-    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v9')) || [];
+    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v11')) || [];
+    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v11')) || [];
     document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
 
     function toggleCartao() {
@@ -155,15 +160,15 @@
         const n = document.getElementById('nomeCartao');
         const d = document.getElementById('vencimentoCartao');
         if(!n.value || !d.value) return;
-        cartoes.push({nome: n.value, dia: parseInt(d.value)});
-        localStorage.setItem('fin_cards_v9', JSON.stringify(cartoes));
+        cartoes.push({nome: n.value.toUpperCase(), dia: parseInt(d.value)});
+        localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
         n.value = ''; d.value = ''; renderizar();
     }
 
     function excluirCartao(index) {
-        if(confirm("Excluir cartão?")) {
+        if(confirm("Deseja remover este cartão?")) {
             cartoes.splice(index, 1);
-            localStorage.setItem('fin_cards_v9', JSON.stringify(cartoes));
+            localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
             renderizar();
         }
     }
@@ -176,42 +181,37 @@
         const data = document.getElementById('dataBase');
         const cart = document.getElementById('selectCartao');
 
-        if(!desc.value || !valorInp.value || !data.value) return alert("Preencha tudo!");
+        if(!desc.value || !valorInp.value || !data.value) return alert("Preencha todos os campos!");
 
         let valorUnitario = parseFloat(valorInp.value);
         const numParc = parseInt(parc.value);
 
-        // --- NOVA LÓGICA: PERGUNTAR SE É TOTAL OU PARCELA ---
         if(numParc > 1) {
-            const escolha = confirm(`O valor R$ ${valorUnitario.toFixed(2)} é o TOTAL da compra?\n\n(OK para TOTAL / Cancelar para valor de CADA PARCELA)`);
-            if(escolha) {
-                // Se for o total, dividimos para achar o valor da parcela
-                valorUnitario = valorUnitario / numParc;
-            } 
-            // Se cancelou, o valor já é o da parcela, então não faz nada.
+            const escolha = confirm(`R$ ${valorUnitario.toFixed(2)} é o TOTAL da compra?\n\n(OK para TOTAL / Cancelar para valor de CADA PARCELA)`);
+            if(escolha) valorUnitario = valorUnitario / numParc;
         }
 
         const dataCompra = new Date(data.value + "T00:00:00");
         let mesOffset = 0;
         if(tipo.value === 'cartao') {
             const cInfo = cartoes.find(x => x.nome === cart.value);
-            if(cInfo && dataCompra.getDate() > cInfo.dia) {
-                mesOffset = 1;
-            }
+            if(cInfo && dataCompra.getDate() > cInfo.dia) mesOffset = 1;
         }
+
+        const idGrupo = Date.now(); // Identificador para parcelas do mesmo grupo
 
         for(let i = 0; i < numParc; i++) {
             let dt = new Date(data.value + "T00:00:00");
             dt.setMonth(dt.getMonth() + i + mesOffset);
-            
             if(tipo.value === 'cartao') {
                 const c = cartoes.find(x => x.nome === cart.value);
                 if(c) dt.setDate(c.dia);
             }
-
             lancamentos.push({
-                id: Date.now() + i,
+                id: idGrupo + i,
+                idGrupo: idGrupo, 
                 desc: numParc > 1 ? `${desc.value} (${i+1}/${numParc})` : desc.value,
+                descBase: desc.value,
                 valor: valorUnitario,
                 tipo: tipo.value,
                 origem: tipo.value === 'cartao' ? cart.value : (tipo.value === 'receita' ? 'Entrada' : 'Dinheiro'),
@@ -219,28 +219,40 @@
                 pago: false
             });
         }
-        localStorage.setItem('fin_dados_v9', JSON.stringify(lancamentos));
-        
-        // Limpar campos
-        desc.value = ''; 
-        valorInp.value = ''; 
-        parc.value = '1';
+        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
+        desc.value = ''; valorInp.value = ''; parc.value = '1';
         renderizar();
     }
 
     function alternarStatus(id) {
         const idx = lancamentos.findIndex(l => l.id === id);
         lancamentos[idx].pago = !lancamentos[idx].pago;
-        localStorage.setItem('fin_dados_v9', JSON.stringify(lancamentos));
+        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
         renderizar();
     }
 
+    // --- NOVA FUNÇÃO DE EXCLUSÃO INTELIGENTE ---
     function deletar(id) {
-        if(confirm("Excluir?")) {
+        const item = lancamentos.find(l => l.id === id);
+        const temParcelas = lancamentos.filter(l => l.idGrupo === item.idGrupo && l.idGrupo !== undefined).length > 1;
+
+        if (temParcelas) {
+            const escolha = confirm(`Este item faz parte de um lançamento parcelado (${item.descBase}).\n\nClique em OK para excluir TODAS as parcelas.\nClique em CANCELAR para excluir apenas ESTA parcela.`);
+            if (escolha) {
+                // Exclui todas as parcelas do grupo
+                lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
+            } else {
+                // Exclui apenas a clicada
+                lancamentos = lancamentos.filter(l => l.id !== id);
+            }
+        } else {
+            // Lançamento único
+            if(!confirm("Excluir lançamento?")) return;
             lancamentos = lancamentos.filter(l => l.id !== id);
-            localStorage.setItem('fin_dados_v9', JSON.stringify(lancamentos));
-            renderizar();
         }
+
+        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
+        renderizar();
     }
 
     function exportarDados() {
@@ -255,9 +267,9 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             const data = JSON.parse(e.target.result);
-            localStorage.setItem('fin_dados_v9', JSON.stringify(data.lancamentos));
-            localStorage.setItem('fin_cards_v9', JSON.stringify(data.cartoes));
-            localStorage.setItem('fin_senha_v9', data.senhaSalva);
+            localStorage.setItem('fin_dados_v11', JSON.stringify(data.lancamentos));
+            localStorage.setItem('fin_cards_v11', JSON.stringify(data.cartoes));
+            localStorage.setItem('fin_senha_v11', data.senhaSalva);
             location.reload();
         };
         reader.readAsText(event.target.files[0]);
@@ -268,20 +280,31 @@
         const corpo = document.getElementById('corpoTabela');
         const selC = document.getElementById('selectCartao');
         const listC = document.getElementById('listaCartoes');
+        const dashCartoes = document.getElementById('dash-cartoes');
         
         selC.innerHTML = '<option value="">Escolha o Cartão</option>';
         listC.innerHTML = '<strong>Cartões:</strong> ';
+        dashCartoes.innerHTML = ''; 
+
+        let gastosPorCartao = {};
         cartoes.forEach((c, index) => {
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
             listC.innerHTML += `<span class="cartao-item">${c.nome} (dia ${c.dia}) <span class="btn-del-cartao" onclick="excluirCartao(${index})">×</span></span>`;
+            gastosPorCartao[c.nome] = 0;
         });
 
         let rOK = 0, rPEN = 0, dOK = 0, dPEN = 0;
         corpo.innerHTML = '';
 
         lancamentos.filter(l => l.vencimento.startsWith(mes)).sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento)).forEach(l => {
-            if(l.tipo === 'receita') l.pago ? rOK += l.valor : rPEN += l.valor;
-            else l.pago ? dOK += l.valor : dPEN += l.valor;
+            if(l.tipo === 'receita') {
+                l.pago ? rOK += l.valor : rPEN += l.valor;
+            } else {
+                l.pago ? dOK += l.valor : dPEN += l.valor;
+                if(l.tipo === 'cartao' && gastosPorCartao[l.origem] !== undefined) {
+                    gastosPorCartao[l.origem] += l.valor;
+                }
+            }
 
             corpo.innerHTML += `
                 <tr class="${l.pago ? 'linha-paga' : ''}">
@@ -297,6 +320,15 @@
                 </tr>
             `;
         });
+
+        for (let nome in gastosPorCartao) {
+            dashCartoes.innerHTML += `
+                <div class="card card-cartao">
+                    <h4>Fatura ${nome}</h4>
+                    <p>R$ ${gastosPorCartao[nome].toFixed(2)}</p>
+                </div>
+            `;
+        }
 
         document.getElementById('total-rec-ok').innerText = `R$ ${rOK.toFixed(2)}`;
         document.getElementById('total-rec-pen').innerText = `R$ ${rPEN.toFixed(2)}`;
