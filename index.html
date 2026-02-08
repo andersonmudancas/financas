@@ -10,10 +10,10 @@
     <style>
         :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
-        #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 300px; }
-        .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        #conteudo-principal { display: none; padding: 20px; }
+        
+        /* Ajuste: O conteúdo principal agora começa visível */
+        #conteudo-principal { display: block; padding: 20px; }
+        
         .container { max-width: 1300px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -43,14 +43,6 @@
 </head>
 <body>
 
-<div id="tela-login">
-    <div class="login-box">
-        <h2 id="titulo-login">Cloud Login</h2>
-        <input type="password" id="campo-senha" placeholder="Senha da Nuvem">
-        <button onclick="verificarLogin()" class="btn-add" style="width: 100%;">SINCRONIZAR E ENTRAR</button>
-    </div>
-</div>
-
 <div id="conteudo-principal">
     <div class="container">
         <div class="header-flex">
@@ -61,7 +53,7 @@
             <div style="display: flex; gap: 10px; align-items: center;">
                 <strong>Mês:</strong>
                 <input type="month" id="filtroMes" onchange="renderizar()">
-                <button onclick="location.reload()" style="background:#ddd;">SAIR</button>
+                <button onclick="location.reload()" style="background:#ddd;">RECARREGAR</button>
             </div>
         </div>
 
@@ -108,54 +100,40 @@
 </div>
 
 <script>
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    // ==========================================
+    // CONFIGURAÇÃO FIREBASE - SUBSTITUA AQUI!
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "ID",
+        appId: "APP_ID"
+    };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAGX9hNRPCQ26uYh_DI-jbvnHjqMibZk58",
-  authDomain: "financeiro-f9676.firebaseapp.com",
-  projectId: "financeiro-f9676",
-  storageBucket: "financeiro-f9676.firebasestorage.app",
-  messagingSenderId: "108917683728",
-  appId: "1:108917683728:web:7e3b18d211c8257b66bc95"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let lancamentos = [];
     let cartoes = [];
-    let senhaSalva = "";
 
+    // Função para salvar sem necessidade de senha
     function salvar() {
-        db.ref('meuFinanceiro').set({ lancamentos, cartoes, senhaSalva });
+        db.ref('meuFinanceiro').set({ lancamentos, cartoes });
     }
 
+    // Carregar dados automaticamente ao abrir
     function carregar() {
         db.ref('meuFinanceiro').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 lancamentos = data.lancamentos || [];
                 cartoes = data.cartoes || [];
-                senhaSalva = data.senhaSalva || "";
-                if(senhaSalva) document.getElementById('titulo-login').innerText = "Acesso Restrito";
                 renderizar();
             }
         });
-    }
-
-    function verificarLogin() {
-        const pass = document.getElementById('campo-senha').value;
-        if(!senhaSalva) { senhaSalva = pass; salvar(); }
-        if(pass === senhaSalva) {
-            document.getElementById('tela-login').style.display = 'none';
-            document.getElementById('conteudo-principal').style.display = 'block';
-            carregar();
-        } else alert("Senha Incorreta!");
     }
 
     // --- FUNÇÕES DE INTERAÇÃO ---
@@ -250,7 +228,7 @@ const app = initializeApp(firebaseConfig);
         let gastosPorCartao = {};
         cartoes.forEach((c, idx) => {
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            listC.innerHTML += `<span class="cartao-item">${c.nome} (dia ${c.dia}) <span style="cursor:pointer;color:red" onclick="excluirCartao(${idx})">×</span></span>`;
+            listC.innerHTML += `<span class="cartao-item" style="margin-right:10px">${c.nome} (dia ${c.dia}) <span style="cursor:pointer;color:red" onclick="excluirCartao(${idx})">×</span></span>`;
             gastosPorCartao[c.nome] = 0;
         });
 
@@ -283,15 +261,12 @@ const app = initializeApp(firebaseConfig);
         document.getElementById('total-rec-pen').innerText = `R$ ${rPEN.toFixed(2)}`;
         document.getElementById('total-des-ok').innerText = `R$ ${dOK.toFixed(2)}`;
         document.getElementById('total-des-pen').innerText = `R$ ${dPEN.toFixed(2)}`;
-        
-        // --- LÓGICA DE SALDO EFETIVADO SOLICITADA ---
-        // Saldo = (Tudo o que já recebi) - (Tudo o que já paguei)
         document.getElementById('total-saldo').innerText = `R$ ${(rOK - dOK).toFixed(2)}`;
     }
     
+    // Inicialização ao carregar a página
     document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
+    carregar(); // Inicia a sincronização automática
 </script>
 </body>
 </html>
-
-
