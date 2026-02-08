@@ -3,64 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Financeira Inteligente - V11</title>
+    <title>Financeiro Cloud V12 - Firebase Sync</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
     <style>
         :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
-        
         #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 300px; }
         .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-
         #conteudo-principal { display: none; padding: 20px; }
         .container { max-width: 1300px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        
         .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
-        
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; border-top: 1px dashed #ccc; padding-top: 20px; }
-        
         .card { padding: 15px; border-radius: 8px; color: white; text-align: center; }
         .card h4 { margin: 0 0 10px 0; font-size: 0.85em; text-transform: uppercase; opacity: 0.9; }
         .card p { margin: 0; font-size: 1.2em; font-weight: bold; }
-        
         .rec-recebida { background: var(--primary); }
         .rec-pendente { background: #1abc9c; }
         .des-paga { background: var(--info); }
         .des-pendente { background: var(--danger); }
-        .saldo-total { background: var(--dark); }
+        .saldo-total { background: #2980b9; border: 2px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .card-cartao { background: var(--purple); }
-
         .section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
         .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-        
         input, select, button { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
         button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; }
         .btn-add { background: var(--primary); color: white; }
-        .btn-backup { background: var(--purple); color: white; font-size: 11px; padding: 5px 10px; }
-
-        .cartao-item { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; font-size: 12px; }
-        .btn-del-cartao { color: var(--danger); cursor: pointer; margin-left: 5px; font-weight: bold; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; font-size: 13px; color: #666; }
         .linha-paga { background-color: #e8f5e9 !important; }
-        
         .tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
         .tag-pendente { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
         .tag-pago { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
-        
-        .btn-acao { padding: 5px 10px; font-size: 11px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div id="tela-login">
     <div class="login-box">
-        <h2 id="titulo-login">Definir Senha</h2>
-        <input type="password" id="campo-senha" placeholder="Senha">
-        <button onclick="verificarLogin()" class="btn-add" style="width: 100%;">ENTRAR</button>
+        <h2 id="titulo-login">Cloud Login</h2>
+        <input type="password" id="campo-senha" placeholder="Senha da Nuvem">
+        <button onclick="verificarLogin()" class="btn-add" style="width: 100%;">SINCRONIZAR E ENTRAR</button>
     </div>
 </div>
 
@@ -68,15 +55,11 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira V11</h2>
-                <div style="margin-top:10px;">
-                    <button class="btn-backup" onclick="exportarDados()">💾 Exportar Banco</button>
-                    <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar Banco</button>
-                    <input type="file" id="importFile" style="display:none" onchange="processarImport(event)">
-                </div>
+                <h2 style="margin:0">☁️ Finanças em Nuvem V12</h2>
+                <small id="status-sync" style="color: var(--primary);">● Sincronizado com Firebase</small>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <strong>Mês Filtro:</strong>
+                <strong>Mês:</strong>
                 <input type="month" id="filtroMes" onchange="renderizar()">
                 <button onclick="location.reload()" style="background:#ddd;">SAIR</button>
             </div>
@@ -87,7 +70,7 @@
             <div class="card rec-pendente"><h4>Rec. Pendente</h4><p id="total-rec-pen">R$ 0,00</p></div>
             <div class="card des-paga"><h4>Despesa Paga</h4><p id="total-des-ok">R$ 0,00</p></div>
             <div class="card des-pendente"><h4>Despesa Pendente</h4><p id="total-des-pen">R$ 0,00</p></div>
-            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0,00</p></div>
+            <div class="card saldo-total"><h4>Saldo Efetivado (Caixa)</h4><p id="total-saldo">R$ 0,00</p></div>
         </div>
 
         <div class="dashboard-cartoes" id="dash-cartoes"></div>
@@ -99,9 +82,7 @@
                 <button class="btn-add" style="background:var(--purple)" onclick="adicionarCartao()">+ NOVO CARTÃO</button>
             </div>
             <div id="listaCartoes" style="margin-top:10px; font-size: 12px; color: #7f8c8d;"></div>
-            
             <hr style="margin: 15px 0; border:0; border-top:1px solid #ddd;">
-            
             <div class="grid-form">
                 <input type="text" id="desc" placeholder="Descrição">
                 <input type="number" id="valor" placeholder="Valor">
@@ -119,14 +100,7 @@
 
         <table>
             <thead>
-                <tr>
-                    <th>STATUS</th>
-                    <th>DESCRIÇÃO</th>
-                    <th>ORIGEM</th>
-                    <th>VALOR</th>
-                    <th>VENCIMENTO</th>
-                    <th>AÇÕES</th>
-                </tr>
+                <tr><th>STATUS</th><th>DESCRIÇÃO</th><th>ORIGEM</th><th>VALOR</th><th>VENCIMENTO</th><th>AÇÕES</th></tr>
             </thead>
             <tbody id="corpoTabela"></tbody>
         </table>
@@ -134,23 +108,54 @@
 </div>
 
 <script>
-    let senhaSalva = localStorage.getItem('fin_senha_v11');
-    if(senhaSalva) document.getElementById('titulo-login').innerText = "Acesso Restrito";
+    // ==========================================
+    // CONFIGURAÇÃO FIREBASE - SUBSTITUA AQUI!
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "ID",
+        appId: "APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let lancamentos = [];
+    let cartoes = [];
+    let senhaSalva = "";
+
+    function salvar() {
+        db.ref('meuFinanceiro').set({ lancamentos, cartoes, senhaSalva });
+    }
+
+    function carregar() {
+        db.ref('meuFinanceiro').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                lancamentos = data.lancamentos || [];
+                cartoes = data.cartoes || [];
+                senhaSalva = data.senhaSalva || "";
+                if(senhaSalva) document.getElementById('titulo-login').innerText = "Acesso Restrito";
+                renderizar();
+            }
+        });
+    }
 
     function verificarLogin() {
         const pass = document.getElementById('campo-senha').value;
-        if(!senhaSalva) { localStorage.setItem('fin_senha_v11', pass); senhaSalva = pass; }
+        if(!senhaSalva) { senhaSalva = pass; salvar(); }
         if(pass === senhaSalva) {
             document.getElementById('tela-login').style.display = 'none';
             document.getElementById('conteudo-principal').style.display = 'block';
-            renderizar();
+            carregar();
         } else alert("Senha Incorreta!");
     }
 
-    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v11')) || [];
-    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v11')) || [];
-    document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
-
+    // --- FUNÇÕES DE INTERAÇÃO ---
     function toggleCartao() {
         const tipo = document.getElementById('tipo').value;
         document.getElementById('selectCartao').style.display = (tipo === 'cartao') ? 'block' : 'none';
@@ -161,16 +166,11 @@
         const d = document.getElementById('vencimentoCartao');
         if(!n.value || !d.value) return;
         cartoes.push({nome: n.value.toUpperCase(), dia: parseInt(d.value)});
-        localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
-        n.value = ''; d.value = ''; renderizar();
+        n.value = ''; d.value = ''; salvar();
     }
 
     function excluirCartao(index) {
-        if(confirm("Deseja remover este cartão?")) {
-            cartoes.splice(index, 1);
-            localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
-            renderizar();
-        }
+        if(confirm("Excluir cartão?")) { cartoes.splice(index, 1); salvar(); }
     }
 
     function adicionarLancamento() {
@@ -181,25 +181,23 @@
         const data = document.getElementById('dataBase');
         const cart = document.getElementById('selectCartao');
 
-        if(!desc.value || !valorInp.value || !data.value) return alert("Preencha todos os campos!");
+        if(!desc.value || !valorInp.value || !data.value) return alert("Preencha tudo!");
 
-        let valorUnitario = parseFloat(valorInp.value);
+        let valorUnit = parseFloat(valorInp.value);
         const numParc = parseInt(parc.value);
 
         if(numParc > 1) {
-            const escolha = confirm(`R$ ${valorUnitario.toFixed(2)} é o TOTAL da compra?\n\n(OK para TOTAL / Cancelar para valor de CADA PARCELA)`);
-            if(escolha) valorUnitario = valorUnitario / numParc;
+            if(confirm(`R$ ${valorUnit.toFixed(2)} é o TOTAL?`)) valorUnit /= numParc;
         }
 
         const dataCompra = new Date(data.value + "T00:00:00");
         let mesOffset = 0;
         if(tipo.value === 'cartao') {
-            const cInfo = cartoes.find(x => x.nome === cart.value);
-            if(cInfo && dataCompra.getDate() > cInfo.dia) mesOffset = 1;
+            const c = cartoes.find(x => x.nome === cart.value);
+            if(c && dataCompra.getDate() > c.dia) mesOffset = 1;
         }
 
-        const idGrupo = Date.now(); // Identificador para parcelas do mesmo grupo
-
+        const idG = Date.now();
         for(let i = 0; i < numParc; i++) {
             let dt = new Date(data.value + "T00:00:00");
             dt.setMonth(dt.getMonth() + i + mesOffset);
@@ -208,71 +206,31 @@
                 if(c) dt.setDate(c.dia);
             }
             lancamentos.push({
-                id: idGrupo + i,
-                idGrupo: idGrupo, 
-                desc: numParc > 1 ? `${desc.value} (${i+1}/${numParc})` : desc.value,
-                descBase: desc.value,
-                valor: valorUnitario,
-                tipo: tipo.value,
+                id: idG + i, idGrupo: idG, desc: numParc > 1 ? `${desc.value} (${i+1}/${numParc})` : desc.value,
+                descBase: desc.value, valor: valorUnit, tipo: tipo.value,
                 origem: tipo.value === 'cartao' ? cart.value : (tipo.value === 'receita' ? 'Entrada' : 'Dinheiro'),
-                vencimento: dt.toISOString().substring(0, 10),
-                pago: false
+                vencimento: dt.toISOString().substring(0, 10), pago: false
             });
         }
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-        desc.value = ''; valorInp.value = ''; parc.value = '1';
-        renderizar();
+        desc.value = ''; valorInp.value = ''; salvar();
     }
 
     function alternarStatus(id) {
         const idx = lancamentos.findIndex(l => l.id === id);
         lancamentos[idx].pago = !lancamentos[idx].pago;
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-        renderizar();
+        salvar();
     }
 
-    // --- NOVA FUNÇÃO DE EXCLUSÃO INTELIGENTE ---
     function deletar(id) {
         const item = lancamentos.find(l => l.id === id);
-        const temParcelas = lancamentos.filter(l => l.idGrupo === item.idGrupo && l.idGrupo !== undefined).length > 1;
-
-        if (temParcelas) {
-            const escolha = confirm(`Este item faz parte de um lançamento parcelado (${item.descBase}).\n\nClique em OK para excluir TODAS as parcelas.\nClique em CANCELAR para excluir apenas ESTA parcela.`);
-            if (escolha) {
-                // Exclui todas as parcelas do grupo
-                lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
-            } else {
-                // Exclui apenas a clicada
-                lancamentos = lancamentos.filter(l => l.id !== id);
-            }
+        const parcelas = lancamentos.filter(l => l.idGrupo === item.idGrupo && l.idGrupo !== undefined);
+        if (parcelas.length > 1) {
+            if (confirm("Excluir TODAS as parcelas?")) lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
+            else lancamentos = lancamentos.filter(l => l.id !== id);
         } else {
-            // Lançamento único
-            if(!confirm("Excluir lançamento?")) return;
-            lancamentos = lancamentos.filter(l => l.id !== id);
+            if(confirm("Excluir?")) lancamentos = lancamentos.filter(l => l.id !== id);
         }
-
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-        renderizar();
-    }
-
-    function exportarDados() {
-        const blob = new Blob([JSON.stringify({lancamentos, cartoes, senhaSalva})], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_financeiro.json`;
-        a.click();
-    }
-
-    function processarImport(event) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = JSON.parse(e.target.result);
-            localStorage.setItem('fin_dados_v11', JSON.stringify(data.lancamentos));
-            localStorage.setItem('fin_cards_v11', JSON.stringify(data.cartoes));
-            localStorage.setItem('fin_senha_v11', data.senhaSalva);
-            location.reload();
-        };
-        reader.readAsText(event.target.files[0]);
+        salvar();
     }
 
     function renderizar() {
@@ -287,9 +245,9 @@
         dashCartoes.innerHTML = ''; 
 
         let gastosPorCartao = {};
-        cartoes.forEach((c, index) => {
+        cartoes.forEach((c, idx) => {
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            listC.innerHTML += `<span class="cartao-item">${c.nome} (dia ${c.dia}) <span class="btn-del-cartao" onclick="excluirCartao(${index})">×</span></span>`;
+            listC.innerHTML += `<span class="cartao-item">${c.nome} (dia ${c.dia}) <span style="cursor:pointer;color:red" onclick="excluirCartao(${idx})">×</span></span>`;
             gastosPorCartao[c.nome] = 0;
         });
 
@@ -297,45 +255,38 @@
         corpo.innerHTML = '';
 
         lancamentos.filter(l => l.vencimento.startsWith(mes)).sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento)).forEach(l => {
-            if(l.tipo === 'receita') {
-                l.pago ? rOK += l.valor : rPEN += l.valor;
-            } else {
+            if(l.tipo === 'receita') l.pago ? rOK += l.valor : rPEN += l.valor;
+            else {
                 l.pago ? dOK += l.valor : dPEN += l.valor;
-                if(l.tipo === 'cartao' && gastosPorCartao[l.origem] !== undefined) {
-                    gastosPorCartao[l.origem] += l.valor;
-                }
+                if(l.tipo === 'cartao' && gastosPorCartao[l.origem] !== undefined) gastosPorCartao[l.origem] += l.valor;
             }
 
             corpo.innerHTML += `
                 <tr class="${l.pago ? 'linha-paga' : ''}">
-                    <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}">${l.pago ? (l.tipo==='receita'?'RECEBIDO':'PAGO') : 'PENDENTE'}</span></td>
-                    <td>${l.desc}</td>
-                    <td>${l.origem}</td>
-                    <td>R$ ${l.valor.toFixed(2)}</td>
-                    <td>${l.vencimento.split('-').reverse().join('/')}</td>
+                    <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}">${l.pago ? 'OK' : 'PENDENTE'}</span></td>
+                    <td>${l.desc}</td><td>${l.origem}</td><td>R$ ${l.valor.toFixed(2)}</td><td>${l.vencimento.split('-').reverse().join('/')}</td>
                     <td>
-                        <button class="btn-acao" style="background:var(--primary); color:white; padding:5px" onclick="alternarStatus(${l.id})">${l.pago ? 'Reabrir' : '✔ OK'}</button>
-                        <button class="btn-acao" style="background:none; color:var(--danger)" onclick="deletar(${l.id})">🗑</button>
+                        <button style="background:var(--primary);color:white" onclick="alternarStatus(${l.id})">${l.pago ? 'Reabrir' : '✔ OK'}</button>
+                        <button style="color:var(--danger);background:none" onclick="deletar(${l.id})">🗑</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
 
         for (let nome in gastosPorCartao) {
-            dashCartoes.innerHTML += `
-                <div class="card card-cartao">
-                    <h4>Fatura ${nome}</h4>
-                    <p>R$ ${gastosPorCartao[nome].toFixed(2)}</p>
-                </div>
-            `;
+            dashCartoes.innerHTML += `<div class="card card-cartao"><h4>Fatura ${nome}</h4><p>R$ ${gastosPorCartao[nome].toFixed(2)}</p></div>`;
         }
 
         document.getElementById('total-rec-ok').innerText = `R$ ${rOK.toFixed(2)}`;
         document.getElementById('total-rec-pen').innerText = `R$ ${rPEN.toFixed(2)}`;
         document.getElementById('total-des-ok').innerText = `R$ ${dOK.toFixed(2)}`;
         document.getElementById('total-des-pen').innerText = `R$ ${dPEN.toFixed(2)}`;
-        document.getElementById('total-saldo').innerText = `R$ ${(rOK + rPEN - dOK - dPEN).toFixed(2)}`;
+        
+        // --- LÓGICA DE SALDO EFETIVADO SOLICITADA ---
+        // Saldo = (Tudo o que já recebi) - (Tudo o que já paguei)
+        document.getElementById('total-saldo').innerText = `R$ ${(rOK - dOK).toFixed(2)}`;
     }
+    
+    document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
 </script>
 </body>
 </html>
