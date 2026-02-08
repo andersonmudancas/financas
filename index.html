@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro Cloud V12 - Firebase Sync</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <style>
         :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
-        
-        /* Ajuste: O conteúdo principal agora começa visível */
         #conteudo-principal { display: block; padding: 20px; }
-        
         .container { max-width: 1300px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -100,34 +98,28 @@
 </div>
 
 <script>
-    /// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    // CONFIGURAÇÃO FIREBASE CORRIGIDA
+    const firebaseConfig = {
+        apiKey: "AIzaSyAGX9hNRPCQ26uYh_DI-jbvnHjqMibZk58",
+        authDomain: "financeiro-f9676.firebaseapp.com",
+        projectId: "financeiro-f9676",
+        databaseURL: "https://financeiro-f9676-default-rtdb.firebaseio.com", // Adicionado URL do banco
+        storageBucket: "financeiro-f9676.firebasestorage.app",
+        messagingSenderId: "108917683728",
+        appId: "1:108917683728:web:7e3b18d211c8257b66bc95"
+    };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAGX9hNRPCQ26uYh_DI-jbvnHjqMibZk58",
-  authDomain: "financeiro-f9676.firebaseapp.com",
-  projectId: "financeiro-f9676",
-  storageBucket: "financeiro-f9676.firebasestorage.app",
-  messagingSenderId: "108917683728",
-  appId: "1:108917683728:web:7e3b18d211c8257b66bc95"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    // Inicialização correta para Script Tradicional
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let lancamentos = [];
     let cartoes = [];
 
-    // Função para salvar sem necessidade de senha
     function salvar() {
         db.ref('meuFinanceiro').set({ lancamentos, cartoes });
     }
 
-    // Carregar dados automaticamente ao abrir
     function carregar() {
         db.ref('meuFinanceiro').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -139,7 +131,6 @@ const app = initializeApp(firebaseConfig);
         });
     }
 
-    // --- FUNÇÕES DE INTERAÇÃO ---
     function toggleCartao() {
         const tipo = document.getElementById('tipo').value;
         document.getElementById('selectCartao').style.display = (tipo === 'cartao') ? 'block' : 'none';
@@ -207,6 +198,7 @@ const app = initializeApp(firebaseConfig);
 
     function deletar(id) {
         const item = lancamentos.find(l => l.id === id);
+        if(!item) return;
         const parcelas = lancamentos.filter(l => l.idGrupo === item.idGrupo && l.idGrupo !== undefined);
         if (parcelas.length > 1) {
             if (confirm("Excluir TODAS as parcelas?")) lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
@@ -231,7 +223,7 @@ const app = initializeApp(firebaseConfig);
         let gastosPorCartao = {};
         cartoes.forEach((c, idx) => {
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            listC.innerHTML += `<span class="cartao-item" style="margin-right:10px">${c.nome} (dia ${c.dia}) <span style="cursor:pointer;color:red" onclick="excluirCartao(${idx})">×</span></span>`;
+            listC.innerHTML += `<span style="margin-right:15px">${c.nome} <b style="color:red;cursor:pointer" onclick="excluirCartao(${idx})">×</b></span>`;
             gastosPorCartao[c.nome] = 0;
         });
 
@@ -251,7 +243,7 @@ const app = initializeApp(firebaseConfig);
                     <td>${l.desc}</td><td>${l.origem}</td><td>R$ ${l.valor.toFixed(2)}</td><td>${l.vencimento.split('-').reverse().join('/')}</td>
                     <td>
                         <button style="background:var(--primary);color:white" onclick="alternarStatus(${l.id})">${l.pago ? 'Reabrir' : '✔ OK'}</button>
-                        <button style="color:var(--danger);background:none" onclick="deletar(${l.id})">🗑</button>
+                        <button style="color:var(--danger);background:none;font-size:18px" onclick="deletar(${l.id})">🗑</button>
                     </td>
                 </tr>`;
         });
@@ -267,10 +259,8 @@ const app = initializeApp(firebaseConfig);
         document.getElementById('total-saldo').innerText = `R$ ${(rOK - dOK).toFixed(2)}`;
     }
     
-    // Inicialização ao carregar a página
     document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
-    carregar(); // Inicia a sincronização automática
+    carregar();
 </script>
 </body>
 </html>
-
