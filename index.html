@@ -3,68 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Financeira Inteligente - V11.3</title>
+    <title>Financeiro Pro - V11.7</title>
     <style>
         :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
         
-        #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 300px; }
-        .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
+        .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 350px; }
+        .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
-        #conteudo-principal { display: none; padding: 20px; }
-        .container { max-width: 1300px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        #conteudo-principal { display: none; padding: 10px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         
-        .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
+        .header-flex { display: flex; flex-direction: column; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
+        @media (min-width: 768px) { .header-flex { flex-direction: row; justify-content: space-between; align-items: center; } }
         
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; border-top: 1px dashed #ccc; padding-top: 20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media (min-width: 768px) { .dashboard { grid-template-columns: repeat(5, 1fr); } }
         
-        .card { padding: 15px; border-radius: 8px; color: white; text-align: center; position: relative; }
-        .card h4 { margin: 0 0 10px 0; font-size: 0.85em; text-transform: uppercase; opacity: 0.9; }
-        .card p { margin: 0; font-size: 1.2em; font-weight: bold; }
+        .card { padding: 12px; border-radius: 8px; color: white; text-align: center; }
+        .card h4 { margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; opacity: 0.9; }
+        .card p { margin: 0; font-size: 1.1em; font-weight: bold; }
         
         .rec-recebida { background: var(--primary); }
         .rec-pendente { background: #1abc9c; }
         .des-paga { background: var(--info); }
         .des-pendente { background: var(--danger); }
-        .saldo-total { background: var(--dark); }
-        .card-cartao { background: var(--purple); }
+        .saldo-total { background: var(--dark); grid-column: span 2; }
+        @media (min-width: 768px) { .saldo-total { grid-column: span 1; } }
 
-        .btn-pagar-tudo { margin-top: 10px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
-        .btn-pagar-tudo:hover { background: white; color: var(--purple); }
+        .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .card-cartao { background: var(--purple); color: white; padding: 10px; border-radius: 8px; text-align: center;}
 
         .section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
-        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        .grid-form { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 600px) { .grid-form { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); } }
         
-        input, select, button { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-        button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; }
+        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-add { background: var(--primary); color: white; }
-        .btn-backup { background: var(--purple); color: white; font-size: 11px; padding: 5px 10px; }
+        .btn-backup { background: var(--purple); color: white; font-size: 12px; padding: 8px; margin-top: 5px; }
 
-        .cartao-item { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; font-size: 12px; }
-        .btn-del-cartao { color: var(--danger); cursor: pointer; margin-left: 5px; font-weight: bold; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-size: 13px; color: #666; }
-        .linha-paga { background-color: #e8f5e9 !important; }
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
         
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-        .tag-pendente { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
-        .tag-pago { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
-        .btn-acao { padding: 5px 10px; font-size: 11px; border-radius: 4px; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-align: center; display: inline-block; min-width: 40px; }
+        .tag-pendente { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
+        .tag-pago { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
 
-        .filtros-topo { display: flex; gap: 10px; align-items: center; background: #eef2f3; padding: 12px; border-radius: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-acao { padding: 8px; font-size: 12px; border-radius: 6px; width: auto; display: inline-block; margin-right: 3px; border: 1px solid rgba(0,0,0,0.1); }
+        .btn-check { background: #27ae60; color: white; }
+        .btn-edit { background: #2980b9; color: white; }
+        .btn-del { background: #e74c3c; color: white; }
+
+        .filtros-topo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #eef2f3; padding: 15px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        @media (min-width: 768px) { .filtros-topo { display: flex; width: auto; } }
+        .cartao-item { display: inline-flex; align-items: center; background: #eee; padding: 5px 10px; border-radius: 20px; margin: 2px; font-size: 12px; }
+        
+        .linha-paga { background-color: #f8f9fa; color: #95a5a6; }
     </style>
 </head>
 <body>
 
 <div id="tela-login">
     <div class="login-box">
-        <h2 id="titulo-login">Definir Senha</h2>
-        <input type="password" id="campo-senha" placeholder="Senha">
-        <button onclick="verificarLogin()" class="btn-add" style="width: 100%;">ENTRAR</button>
+        <h2>Meu Financeiro</h2>
+        <input type="password" id="campo-senha" placeholder="Senha de Acesso">
+        <button onclick="verificarLogin()" class="btn-add">ENTRAR</button>
     </div>
 </div>
 
@@ -72,77 +78,82 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira V11.3</h2>
-                <div style="margin-top:10px;">
-                    <button class="btn-backup" onclick="exportarDados()">💾 Exportar Banco</button>
-                    <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar Banco</button>
+                <h2 style="margin:0">💰 Gestão Financeira V11.7</h2>
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <button class="btn-backup" onclick="exportarDados()">💾 Backup</button>
+                    <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar</button>
                     <input type="file" id="importFile" style="display:none" onchange="processarImport(event)">
                 </div>
             </div>
+            
             <div class="filtros-topo">
-                <strong>Origem:</strong>
-                <select id="filtroOrigem" onchange="renderizar()">
-                    </select>
-                <strong>Mês:</strong>
-                <input type="month" id="filtroMes" onchange="renderizar()">
-                <button onclick="location.reload()" style="background:#bbb; color: white; padding: 5px 10px;">SAIR</button>
+                <div><small>Origem:</small><select id="filtroOrigem" onchange="renderizar()"></select></div>
+                <div><small>Mês:</small><input type="month" id="filtroMes" onchange="renderizar()"></div>
             </div>
         </div>
 
         <div class="dashboard">
-            <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0,00</p></div>
-            <div class="card rec-pendente"><h4>Rec. Pendente</h4><p id="total-rec-pen">R$ 0,00</p></div>
-            <div class="card des-paga"><h4>Despesa Paga</h4><p id="total-des-ok">R$ 0,00</p></div>
-            <div class="card des-pendente"><h4>Despesa Pendente</h4><p id="total-des-pen">R$ 0,00</p></div>
-            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0,00</p></div>
+            <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0</p></div>
+            <div class="card rec-pendente"><h4>Pendente</h4><p id="total-rec-pen">R$ 0</p></div>
+            <div class="card des-paga"><h4>Pago</h4><p id="total-des-ok">R$ 0</p></div>
+            <div class="card des-pendente"><h4>Dívida</h4><p id="total-des-pen">R$ 0</p></div>
+            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0</p></div>
         </div>
 
-        <div class="dashboard-cartoes" id="dash-cartoes"></div>
+        <div id="dash-cartoes" class="dashboard-cartoes"></div>
 
         <div class="section">
-            <div class="grid-form">
-                <input type="text" id="nomeCartao" placeholder="Nome do Cartão">
-                <input type="number" id="vencimentoCartao" placeholder="Dia Vencimento">
-                <button class="btn-add" style="background:var(--purple)" onclick="adicionarCartao()">+ NOVO CARTÃO</button>
-            </div>
-            <div id="listaCartoes" style="margin-top:10px; font-size: 12px; color: #7f8c8d;"></div>
-            
-            <hr style="margin: 15px 0; border:0; border-top:1px solid #ddd;">
-            
+            <h3 style="margin-top:0; font-size: 16px;" id="titulo-form">📝 Novo Lançamento</h3>
             <div class="grid-form">
                 <input type="text" id="desc" placeholder="Descrição">
-                <input type="number" id="valor" placeholder="Valor">
+                <input type="number" id="valor" placeholder="Valor R$">
                 <select id="tipo" onchange="toggleCartao()">
                     <option value="fixo">Dinheiro / Fixo</option>
                     <option value="cartao">Cartão de Crédito</option>
                     <option value="receita">Receita (Ganho)</option>
                 </select>
                 <select id="selectCartao" style="display:none;"></select>
-                <input type="number" id="parcelas" value="1" min="1">
+                <input type="number" id="parcelas" value="1" min="1" placeholder="Parc.">
                 <input type="date" id="dataBase">
-                <button class="btn-add" onclick="adicionarLancamento()">LANÇAR</button>
+                <button class="btn-add" id="btn-salvar" onclick="adicionarLancamento()">LANÇAR</button>
+            </div>
+            <div id="listaCartoes" style="margin-top:15px; border-top: 1px dotted #ccc; padding-top: 10px;">
+                <small>Cartões ativos: </small><span id="chips-cartoes"></span>
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>STATUS</th>
-                    <th>DESCRIÇÃO</th>
-                    <th>ORIGEM</th>
-                    <th>VALOR</th>
-                    <th>VENCIMENTO</th>
-                    <th>AÇÕES</th>
-                </tr>
-            </thead>
-            <tbody id="corpoTabela"></tbody>
-        </table>
+        <div class="section" style="background: #fff; border: 1px dashed #ccc;">
+            <h4 style="margin:0 0 10px 0; font-size: 14px;">⚙️ Configurar Novo Cartão</h4>
+            <div class="grid-form">
+                <input type="text" id="nomeCartao" placeholder="Nome (Ex: Nubank)">
+                <input type="number" id="vencimentoCartao" placeholder="Dia Vencimento">
+                <button class="btn-add" style="background:var(--purple); height: 42px;" onclick="adicionarCartao()">SALVAR CARTÃO</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STATUS</th><th>DESCRIÇÃO</th><th>ORIGEM</th><th>VALOR</th><th>VENC.</th><th>AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
     let senhaSalva = localStorage.getItem('fin_senha_v11');
-    if(senhaSalva) document.getElementById('titulo-login').innerText = "Acesso Restrito";
+    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v11')) || [];
+    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v11')) || [];
+    let itemEditando = null;
+
+    window.onload = () => {
+        document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
+        document.getElementById('dataBase').valueAsDate = new Date();
+    };
 
     function verificarLogin() {
         const pass = document.getElementById('campo-senha').value;
@@ -154,10 +165,6 @@
         } else alert("Senha Incorreta!");
     }
 
-    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v11')) || [];
-    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v11')) || [];
-    document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
-
     function toggleCartao() {
         const tipo = document.getElementById('tipo').value;
         document.getElementById('selectCartao').style.display = (tipo === 'cartao') ? 'block' : 'none';
@@ -166,83 +173,118 @@
     function adicionarCartao() {
         const n = document.getElementById('nomeCartao');
         const d = document.getElementById('vencimentoCartao');
-        if(!n.value || !d.value) return;
+        if(!n.value || !d.value) return alert("Preencha nome e dia!");
         cartoes.push({nome: n.value.toUpperCase(), dia: parseInt(d.value)});
         localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
         n.value = ''; d.value = ''; renderizar();
     }
 
     function excluirCartao(index) {
-        if(confirm("Deseja remover este cartão?")) {
+        if(confirm("Remover cartão?")) {
             cartoes.splice(index, 1);
             localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
             renderizar();
         }
     }
 
-    function quitarFatura(nomeCartao) {
-        const mesFiltro = document.getElementById('filtroMes').value;
-        if(confirm(`Quitar todos os lançamentos de ${nomeCartao} no mês ${mesFiltro}?`)) {
-            lancamentos = lancamentos.map(l => {
-                if(l.origem === nomeCartao && l.vencimento.startsWith(mesFiltro)) {
-                    return { ...l, pago: true };
-                }
-                return l;
-            });
-            localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-            renderizar();
-        }
-    }
-
     function adicionarLancamento() {
-        const desc = document.getElementById('desc');
-        const valorInp = document.getElementById('valor');
-        const tipo = document.getElementById('tipo');
-        const parc = document.getElementById('parcelas');
-        const data = document.getElementById('dataBase');
-        const cart = document.getElementById('selectCartao');
+        const desc = document.getElementById('desc').value;
+        const valorInp = document.getElementById('valor').value;
+        const tipo = document.getElementById('tipo').value;
+        const parc = parseInt(document.getElementById('parcelas').value);
+        const dataInp = document.getElementById('dataBase').value;
+        const cart = document.getElementById('selectCartao').value;
 
-        if(!desc.value || !valorInp.value || !data.value) return alert("Preencha todos os campos!");
+        if(!desc || !valorInp || !dataInp) return alert("Preencha tudo!");
 
-        let valorUnitario = parseFloat(valorInp.value);
-        const numParc = parseInt(parc.value);
+        // Lógica de Edição
+        if(itemEditando !== null) {
+            const grupoItems = lancamentos.filter(l => l.idGrupo === itemEditando.idGrupo);
+            let alterarTodos = false;
 
-        if(numParc > 1) {
-            const escolha = confirm(`R$ ${valorUnitario.toFixed(2)} é o TOTAL da compra?`);
-            if(escolha) valorUnitario = valorUnitario / numParc;
+            if(grupoItems.length > 1) {
+                alterarTodos = confirm("Este item possui parcelas. Deseja aplicar as alterações em TODAS as parcelas deste grupo?\n\n(OK para Todos / Cancelar para apenas esta)");
+            }
+
+            if(alterarTodos) {
+                // Atualiza todos do grupo (exceto parcelamento e data, que seguem a lógica de cada mês)
+                lancamentos.forEach(l => {
+                    if(l.idGrupo === itemEditando.idGrupo) {
+                        l.desc = l.desc.includes('(') ? `${desc} ${l.desc.substring(l.desc.lastIndexOf('('))}` : desc;
+                        l.valor = parseFloat(valorInp);
+                        l.tipo = tipo;
+                        l.origem = tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro');
+                    }
+                });
+                finalizarAcao();
+                return;
+            } else {
+                // Remove apenas o item específico para recriá-lo
+                lancamentos = lancamentos.filter(l => l.id !== itemEditando.id);
+            }
         }
 
-        const dataCompra = new Date(data.value + "T00:00:00");
+        // Lógica de Novo Item ou Parcela Única editada
+        let valorTotal = parseFloat(valorInp);
+        let valorUnitario = (parc > 1 && confirm(`R$ ${valorTotal.toFixed(2)} é o TOTAL?`)) ? valorTotal / parc : valorTotal;
+
+        const dataBase = new Date(dataInp + "T00:00:00");
         let mesOffset = 0;
-        if(tipo.value === 'cartao') {
-            const cInfo = cartoes.find(x => x.nome === cart.value);
-            if(cInfo && dataCompra.getDate() > cInfo.dia) mesOffset = 1;
+        if(tipo === 'cartao') {
+            const cInfo = cartoes.find(x => x.nome === cart);
+            if(cInfo && dataBase.getDate() > cInfo.dia) mesOffset = 1;
         }
 
-        const idGrupo = Date.now(); 
-
-        for(let i = 0; i < numParc; i++) {
-            let dt = new Date(data.value + "T00:00:00");
+        const idGrupo = itemEditando ? itemEditando.idGrupo : Date.now(); 
+        for(let i = 0; i < parc; i++) {
+            let dt = new Date(dataInp + "T00:00:00");
             dt.setMonth(dt.getMonth() + i + mesOffset);
-            if(tipo.value === 'cartao') {
-                const c = cartoes.find(x => x.nome === cart.value);
+            if(tipo === 'cartao') {
+                const c = cartoes.find(x => x.nome === cart);
                 if(c) dt.setDate(c.dia);
             }
             lancamentos.push({
-                id: idGrupo + i,
-                idGrupo: idGrupo, 
-                desc: numParc > 1 ? `${desc.value} (${i+1}/${numParc})` : desc.value,
-                descBase: desc.value,
-                valor: valorUnitario,
-                tipo: tipo.value,
-                origem: tipo.value === 'cartao' ? cart.value : (tipo.value === 'receita' ? 'Entrada' : 'Dinheiro'),
-                vencimento: dt.toISOString().substring(0, 10),
+                id: Date.now() + i, 
+                idGrupo, 
+                desc: parc > 1 ? `${desc} (${i+1}/${parc})` : desc,
+                valor: valorUnitario, 
+                tipo,
+                origem: tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro'),
+                vencimento: dt.toISOString().substring(0, 10), 
                 pago: false
             });
         }
+        finalizarAcao();
+    }
+
+    function finalizarAcao() {
         localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-        desc.value = ''; valorInp.value = ''; parc.value = '1';
+        itemEditando = null;
+        document.getElementById('titulo-form').innerText = "📝 Novo Lançamento";
+        document.getElementById('btn-salvar').innerText = "LANÇAR";
+        document.getElementById('parcelas').disabled = false;
+        limparCampos();
         renderizar();
+    }
+
+    function editarLancamento(id) {
+        const l = lancamentos.find(x => x.id === id);
+        if(!l) return;
+        itemEditando = l;
+        
+        document.getElementById('desc').value = l.desc.split(' (')[0];
+        document.getElementById('valor').value = l.valor;
+        document.getElementById('tipo').value = l.tipo;
+        document.getElementById('dataBase').value = l.vencimento;
+        document.getElementById('parcelas').value = 1;
+        document.getElementById('parcelas').disabled = true; // Desabilita parcelas na edição simples
+        
+        toggleCartao();
+        if(l.tipo === 'cartao') document.getElementById('selectCartao').value = l.origem;
+        
+        document.getElementById('titulo-form').innerText = "✏️ Editando Lançamento";
+        document.getElementById('btn-salvar').innerText = "SALVAR ALTERAÇÕES";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function alternarStatus(id) {
@@ -254,118 +296,84 @@
 
     function deletar(id) {
         const item = lancamentos.find(l => l.id === id);
-        if(!item) return;
-        const temParcelas = lancamentos.filter(l => l.idGrupo === item.idGrupo).length > 1;
-        if (temParcelas) {
-            if (confirm("Excluir TODAS as parcelas?")) lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
-            else if(confirm("Excluir apenas esta?")) lancamentos = lancamentos.filter(l => l.id !== id);
-        } else {
-            if(confirm("Excluir lançamento?")) lancamentos = lancamentos.filter(l => l.id !== id);
+        const grupo = lancamentos.filter(l => l.idGrupo === item.idGrupo);
+        
+        let deletarTudo = false;
+        if(grupo.length > 1) {
+            deletarTudo = confirm("Este item faz parte de um grupo de parcelas. Deseja excluir TODAS as parcelas deste grupo?");
         }
+
+        if(deletarTudo) {
+            lancamentos = lancamentos.filter(l => l.idGrupo !== item.idGrupo);
+        } else {
+            if(confirm("Excluir apenas esta parcela?")) {
+                lancamentos = lancamentos.filter(l => l.id !== id);
+            } else return;
+        }
+
         localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
         renderizar();
     }
 
-    function exportarDados() {
-        const blob = new Blob([JSON.stringify({lancamentos, cartoes, senhaSalva})], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_financeiro.json`;
-        a.click();
-    }
-
-    function processarImport(event) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = JSON.parse(e.target.result);
-            localStorage.setItem('fin_dados_v11', JSON.stringify(data.lancamentos));
-            localStorage.setItem('fin_cards_v11', JSON.stringify(data.cartoes));
-            localStorage.setItem('fin_senha_v11', data.senhaSalva);
-            location.reload();
-        };
-        reader.readAsText(event.target.files[0]);
-    }
-
     function renderizar() {
         const mes = document.getElementById('filtroMes').value;
-        const origemFiltro = document.getElementById('filtroOrigem').value || 'tudo';
+        const origemF = document.getElementById('filtroOrigem').value || 'tudo';
         const corpo = document.getElementById('corpoTabela');
         const selC = document.getElementById('selectCartao');
-        const listC = document.getElementById('listaCartoes');
-        const dashCartoes = document.getElementById('dash-cartoes');
+        const chips = document.getElementById('chips-cartoes');
         const fOrigem = document.getElementById('filtroOrigem');
-        
-        // Salva a seleção atual do filtro para não resetar o scroll do select
-        const selectedValue = fOrigem.value;
-        
-        // Atualiza Listas e Selects
-        selC.innerHTML = '<option value="">Escolha o Cartão</option>';
-        listC.innerHTML = '<strong>Cartões:</strong> ';
-        
-        // Reconstruir o Filtro de Origem
-        let htmlFiltro = '<option value="tudo">Tudo (Mês)</option>';
-        htmlFiltro += '<option value="Entrada">Somente Receitas</option>';
-        htmlFiltro += '<option value="Dinheiro">Dinheiro / Fixo</option>';
-        
-        let gastosPorCartao = {};
-        cartoes.forEach((c, index) => {
+
+        const curF = fOrigem.value;
+        let htmlF = '<option value="tudo">Tudo</option><option value="Entrada">Receitas</option><option value="Dinheiro">Dinheiro</option>';
+        selC.innerHTML = '<option value="">Selecionar Cartão</option>';
+        chips.innerHTML = '';
+
+        cartoes.forEach((c, idx) => {
+            htmlF += `<option value="${c.nome}">${c.nome}</option>`;
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            listC.innerHTML += `<span class="cartao-item">${c.nome} <span class="btn-del-cartao" onclick="excluirCartao(${index})">×</span></span>`;
-            htmlFiltro += `<option value="${c.nome}">${c.nome}</option>`;
-            gastosPorCartao[c.nome] = 0;
+            chips.innerHTML += `<span class="cartao-item">${c.nome} <b onclick="excluirCartao(${idx})" style="color:red; cursor:pointer">×</b></span>`;
         });
-        
-        fOrigem.innerHTML = htmlFiltro;
-        fOrigem.value = selectedValue || 'tudo';
+        fOrigem.innerHTML = htmlF;
+        fOrigem.value = curF || 'tudo';
 
         let rOK = 0, rPEN = 0, dOK = 0, dPEN = 0;
         corpo.innerHTML = '';
-        dashCartoes.innerHTML = '';
+        document.getElementById('dash-cartoes').innerHTML = '';
 
-        // Filtragem
-        let filtrados = lancamentos.filter(l => l.vencimento.startsWith(mes));
-        
-        if(origemFiltro !== 'tudo') {
-            filtrados = filtrados.filter(l => l.origem === origemFiltro);
-        }
+        const filtrados = lancamentos.filter(l => l.vencimento.startsWith(mes) && (origemF === 'tudo' || l.origem === origemF));
 
         filtrados.sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento)).forEach(l => {
-            // Cálculos para o Dashboard Geral (Baseado no que está na tela)
-            if(l.tipo === 'receita') {
-                l.pago ? rOK += l.valor : rPEN += l.valor;
-            } else {
-                l.pago ? dOK += l.valor : dPEN += l.valor;
-            }
+            if(l.tipo === 'receita') l.pago ? rOK += l.valor : rPEN += l.valor;
+            else l.pago ? dOK += l.valor : dPEN += l.valor;
 
             corpo.innerHTML += `
                 <tr class="${l.pago ? 'linha-paga' : ''}">
-                    <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}">${l.pago ? 'OK' : 'PENDENTE'}</span></td>
+                    <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}" onclick="alternarStatus(${l.id})" style="cursor:pointer">${l.pago ? 'OK' : 'PEND'}</span></td>
                     <td>${l.desc}</td>
                     <td>${l.origem}</td>
-                    <td>R$ ${l.valor.toFixed(2)}</td>
-                    <td>${l.vencimento.split('-').reverse().join('/')}</td>
+                    <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'green' : 'inherit'}">R$ ${l.valor.toFixed(2)}</td>
+                    <td>${l.vencimento.split('-')[2]}</td>
                     <td>
-                        <button class="btn-acao" style="background:var(--primary); color:white;" onclick="alternarStatus(${l.id})">${l.pago ? 'Reabrir' : '✔ OK'}</button>
-                        <button class="btn-acao" style="background:none; color:var(--danger)" onclick="deletar(${l.id})">🗑</button>
+                        <button class="btn-acao btn-check" onclick="alternarStatus(${l.id})">${l.pago ? '😎 Pago' : '✔ OK'}</button>
+                        <button class="btn-acao btn-edit" onclick="editarLancamento(${l.id})">✏️</button>
+                        <button class="btn-acao btn-del" onclick="deletar(${l.id})">🗑</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
 
-        // Cards de Faturas (Calculam sempre o total real do mês para os cartões cadastrados)
+        // Dashboard Cartões
         cartoes.forEach(c => {
-            const itensC = lancamentos.filter(l => l.origem === c.nome && l.vencimento.startsWith(mes));
-            const totalF = itensC.reduce((a, b) => a + b.valor, 0);
-            const pendente = itensC.some(l => !l.pago);
-
-            if(totalF > 0) {
-                dashCartoes.innerHTML += `
-                    <div class="card card-cartao">
-                        <h4>Fatura ${c.nome}</h4>
-                        <p>R$ ${totalF.toFixed(2)}</p>
-                        ${pendente ? `<button class="btn-pagar-tudo" onclick="quitarFatura('${c.nome}')">Quitar Fatura</button>` : '<div style="margin-top:10px; font-size:11px">✅ PAGA</div>'}
-                    </div>
-                `;
+            const fatura = lancamentos.filter(l => l.origem === c.nome && l.vencimento.startsWith(mes));
+            const total = fatura.reduce((a, b) => a + b.valor, 0);
+            if(total > 0) {
+                const pend = fatura.some(l => !l.pago);
+                document.getElementById('dash-cartoes').innerHTML += `
+                    <div class="card-cartao">
+                        <h4 style="margin:0">${c.nome}</h4>
+                        <p style="margin:5px 0">R$ ${total.toFixed(2)}</p>
+                        <small>Venc. Dia ${c.dia}</small><br>
+                        ${pend ? `<button class="btn-pagar-tudo" style="background:white; color:var(--purple); border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; margin-top:5px;" onclick="quitarFatura('${c.nome}')">Quitar Mês</button>` : '<span style="font-size:11px">✅ Paga</span>'}
+                    </div>`;
             }
         });
 
@@ -374,6 +382,41 @@
         document.getElementById('total-des-ok').innerText = `R$ ${dOK.toFixed(2)}`;
         document.getElementById('total-des-pen').innerText = `R$ ${dPEN.toFixed(2)}`;
         document.getElementById('total-saldo').innerText = `R$ ${(rOK + rPEN - dOK - dPEN).toFixed(2)}`;
+    }
+
+    function quitarFatura(nomeC) {
+        const mes = document.getElementById('filtroMes').value;
+        if(confirm(`Quitar todas as contas de ${nomeC} em ${mes}?`)) {
+            lancamentos.forEach(l => { if(l.origem === nomeC && l.vencimento.startsWith(mes)) l.pago = true; });
+            localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
+            renderizar();
+        }
+    }
+
+    function limparCampos() {
+        document.getElementById('desc').value = '';
+        document.getElementById('valor').value = '';
+        document.getElementById('parcelas').value = '1';
+    }
+
+    function exportarDados() {
+        const data = JSON.stringify({lancamentos, cartoes, senhaSalva});
+        const blob = new Blob([data], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_financeiro.json`;
+        a.click();
+    }
+
+    function processarImport(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const d = JSON.parse(ev.target.result);
+            localStorage.setItem('fin_dados_v11', JSON.stringify(d.lancamentos));
+            localStorage.setItem('fin_cards_v11', JSON.stringify(d.cartoes));
+            location.reload();
+        };
+        reader.readAsText(e.target.files[0]);
     }
 </script>
 </body>
