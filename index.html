@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Pro - V11.7</title>
+    <title>Financeiro Pro - V11.8</title>
     <style>
         :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
@@ -44,6 +44,13 @@
         .btn-add { background: var(--primary); color: white; }
         .btn-backup { background: var(--purple); color: white; font-size: 12px; padding: 8px; margin-top: 5px; }
 
+        /* Nova Estrutura de Abas */
+        .abas-container { display: flex; gap: 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
+        .aba-btn { width: auto; padding: 10px 20px; border-radius: 8px 8px 0 0; background: #e0e0e0; color: #555; font-size: 14px; border: none; margin-bottom: -2px; }
+        .aba-btn.ativa { background: var(--dark); color: white; }
+        .aba-conteudo { display: none; }
+        .aba-conteudo.ativa { display: block; }
+
         .table-container { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 650px; }
         th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -62,6 +69,16 @@
         .cartao-item { display: inline-flex; align-items: center; background: #eee; padding: 5px 10px; border-radius: 20px; margin: 2px; font-size: 12px; }
         
         .linha-paga { background-color: #f1f8e9; color: #2c3e50; }
+
+        /* Estilos do Gráfico de Torres */
+        .grafico-torres-wrapper { width: 100%; overflow-x: auto; padding: 20px 0; margin-top: 10px; }
+        .grafico-torres { display: flex; align-items: flex-end; gap: 15px; min-height: 260px; border-bottom: 2px solid #ccc; padding-bottom: 5px; min-width: max-content; }
+        .torre-container { display: flex; flex-direction: column; align-items: center; width: 75px; }
+        .torre { width: 45px; background: linear-gradient(to top, var(--danger), #ff7675); border-radius: 6px 6px 0 0; min-height: 5px; transition: height 0.5s ease; position: relative; animation: crescerTorre 0.6s ease-out; }
+        .torre-valor { font-size: 11px; font-weight: bold; margin-bottom: 5px; color: var(--dark); text-align: center; }
+        .torre-rotulo { font-size: 11px; color: #666; text-align: center; margin-top: 8px; font-weight: 500; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        @keyframes crescerTorre { from { height: 0; } }
     </style>
 </head>
 <body>
@@ -78,7 +95,7 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira V11.7</h2>
+                <h2 style="margin:0">💰 Gestão Financeira V11.8</h2>
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <button class="btn-backup" onclick="exportarDados()">💾 Backup</button>
                     <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar</button>
@@ -108,7 +125,7 @@
                 <input type="text" id="desc" placeholder="Descrição">
                 <input type="number" id="valor" placeholder="Valor R$">
                 <select id="tipo" onchange="toggleCartao()">
-                    <option value="fixo">Dinheiro / Fixo</option>
+                    <option value="fixo">Dinheiro / Pix</option>
                     <option value="cartao">Cartão de Crédito</option>
                     <option value="receita">Receita (Ganho)</option>
                 </select>
@@ -122,7 +139,39 @@
             </div>
         </div>
 
-        <div class="section" style="background: #fff; border: 1px dashed #ccc;">
+        <!-- Seção das Abas de Visualização (Tabela vs Gráfico de Torres) -->
+        <div class="abas-container">
+            <button class="aba-btn ativa" onclick="mudarAba('aba-tabela', this)">📋 Lista de Lançamentos</button>
+            <button class="aba-btn" onclick="mudarAba('aba-grafico', this)">📊 Gráfico de Gastos (Torres)</button>
+        </div>
+
+        <!-- Conteúdo Aba 1: Tabela -->
+        <div id="aba-tabela" class="aba-conteudo ativa">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>STATUS</th><th>DESCRIÇÃO</th><th>ORIGEM</th><th>VALOR</th><th>VENC.</th><th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabela"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Conteúdo Aba 2: Gráfico de Torres -->
+        <div id="aba-grafico" class="aba-conteudo">
+            <div class="section" style="background:#fff;">
+                <h4 style="margin:0 0 15px 0;">Ranking de Despesas por Descrição</h4>
+                <div class="grafico-torres-wrapper">
+                    <div id="container-torres" class="grafico-torres">
+                        <!-- Torres injetadas via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="background: #fff; border: 1px dashed #ccc; margin-top: 20px;">
             <h4 style="margin:0 0 10px 0; font-size: 14px;">⚙️ Configurar Novo Cartão</h4>
             <div class="grid-form">
                 <input type="text" id="nomeCartao" placeholder="Nome (Ex: Nubank)">
@@ -131,16 +180,6 @@
             </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>STATUS</th><th>DESCRIÇÃO</th><th>ORIGEM</th><th>VALOR</th><th>VENC.</th><th>AÇÕES</th>
-                    </tr>
-                </thead>
-                <tbody id="corpoTabela"></tbody>
-            </table>
-        </div>
     </div>
 </div>
 
@@ -163,6 +202,15 @@
             document.getElementById('conteudo-principal').style.display = 'block';
             renderizar();
         } else alert("Senha Incorreta!");
+    }
+
+    // Gerenciador de alternância das Abas
+    function mudarAba(idAba, botao) {
+        document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.remove('ativa'));
+        document.querySelectorAll('.aba-btn').forEach(el => el.classList.remove('ativa'));
+        
+        document.getElementById(idAba).classList.add('ativa');
+        botao.classList.add('ativa');
     }
 
     function toggleCartao() {
@@ -197,7 +245,6 @@
 
         if(!desc || !valorInp || !dataInp) return alert("Preencha tudo!");
 
-        // Lógica de Edição
         if(itemEditando !== null) {
             const grupoItems = lancamentos.filter(l => l.idGrupo === itemEditando.idGrupo);
             let alterarTodos = false;
@@ -207,7 +254,6 @@
             }
 
             if(alterarTodos) {
-                // Atualiza todos do grupo (exceto parcelamento e data, que seguem a lógica de cada mês)
                 lancamentos.forEach(l => {
                     if(l.idGrupo === itemEditando.idGrupo) {
                         l.desc = l.desc.includes('(') ? `${desc} ${l.desc.substring(l.desc.lastIndexOf('('))}` : desc;
@@ -219,12 +265,10 @@
                 finalizarAcao();
                 return;
             } else {
-                // Remove apenas o item específico para recriá-lo
                 lancamentos = lancamentos.filter(l => l.id !== itemEditando.id);
             }
         }
 
-        // Lógica de Novo Item ou Parcela Única editada
         let valorTotal = parseFloat(valorInp);
         let valorUnitario = (parc > 1 && confirm(`R$ ${valorTotal.toFixed(2)} é o TOTAL?`)) ? valorTotal / parc : valorTotal;
 
@@ -277,7 +321,7 @@
         document.getElementById('tipo').value = l.tipo;
         document.getElementById('dataBase').value = l.vencimento;
         document.getElementById('parcelas').value = 1;
-        document.getElementById('parcelas').disabled = true; // Desabilita parcelas na edição simples
+        document.getElementById('parcelas').disabled = true; 
         
         toggleCartao();
         if(l.tipo === 'cartao') document.getElementById('selectCartao').value = l.origem;
@@ -342,9 +386,19 @@
 
         const filtrados = lancamentos.filter(l => l.vencimento.startsWith(mes) && (origemF === 'tudo' || l.origem === origemF));
 
+        // Acumulador para o gráfico de torres
+        const mapaGastos = {};
+
         filtrados.sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento)).forEach(l => {
-            if(l.tipo === 'receita') l.pago ? rOK += l.valor : rPEN += l.valor;
-            else l.pago ? dOK += l.valor : dPEN += l.valor;
+            if(l.tipo === 'receita') {
+                l.pago ? rOK += l.valor : rPEN += l.valor;
+            } else {
+                l.pago ? dOK += l.valor : dPEN += l.valor;
+
+                // Limpa o nome da descrição retirando marcações de parcelas como "(1/10)"
+                const descLimpa = l.desc.split(' (')[0].toUpperCase().trim();
+                mapaGastos[descLimpa] = (mapaGastos[descLimpa] || 0) + l.valor;
+            }
 
             corpo.innerHTML += `
                 <tr class="${l.pago ? 'linha-paga' : ''}">
@@ -361,6 +415,32 @@
                 </tr>`;
         });
 
+        // Renderização do Gráfico de Torres
+        const containerTorres = document.getElementById('container-torres');
+        containerTorres.innerHTML = '';
+
+        const listaOrdenada = Object.keys(mapaGastos)
+            .map(desc => ({ desc, valor: mapaGastos[desc] }))
+            .sort((a, b) => b.valor - a.valor);
+
+        if (listaOrdenada.length > 0) {
+            const maiorValor = listaOrdenada[0].valor; // O topo serve como 100% da altura
+
+            listaOrdenada.forEach(item => {
+                // Calcula a porcentagem da altura em relação ao maior gasto (máximo 200px para o container de 260px)
+                const alturaCalculada = maiorValor > 0 ? (item.valor / maiorValor) * 200 : 0;
+                
+                containerTorres.innerHTML += `
+                    <div class="torre-container">
+                        <div class="torre-valor">R$ ${item.valor.toFixed(0)}</div>
+                        <div class="torre" style="height: ${Math.max(alturaCalculada, 6)}px;" title="${item.desc}: R$ ${item.valor.toFixed(2)}"></div>
+                        <div class="torre-rotulo" title="${item.desc}">${item.desc}</div>
+                    </div>`;
+            });
+        } else {
+            containerTorres.innerHTML = '<p style="color:#888; font-size:14px; padding: 20px;">Nenhuma despesa registrada neste mês.</p>';
+        }
+
         // Dashboard Cartões
         cartoes.forEach(c => {
             const fatura = lancamentos.filter(l => l.origem === c.nome && l.vencimento.startsWith(mes));
@@ -372,7 +452,7 @@
                         <h4 style="margin:0">${c.nome}</h4>
                         <p style="margin:5px 0">R$ ${total.toFixed(2)}</p>
                         <small>Venc. Dia ${c.dia}</small><br>
-                        ${pend ? `<button class="btn-pagar-tudo" style="background:white; color:var(--purple); border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; margin-top:5px;" onclick="quitarFatura('${c.nome}')">Quitar Mês</button>` : '<span style="font-size:11px">✅ Paga</span>'}
+                        ${pend ? `<button class="btn-pagar-tudo" style="background:white; color:var(--purple); border:none; padding:4px 8px; border-radius:4px; font-size:12px; cursor:pointer; margin-top:5px;" onclick="quitarFatura('${c.nome}')">Quitar Mês</button>` : '<span style="font-size:11px">✅ Paga</span>'}
                     </div>`;
             }
         });
@@ -421,4 +501,3 @@
 </script>
 </body>
 </html>
-
