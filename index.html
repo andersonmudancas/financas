@@ -3,25 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Pro - V11.8</title>
+    <title>Financeiro Pro - V12.3</title>
     <style>
-        :root { --primary: #27ae60; --danger: #e74c3c; --warning: #f39c12; --info: #2980b9; --dark: #2c3e50; --bg: #f4f7f6; --purple: #8e44ad; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
+        :root {
+            --primary:#16a34a; --primary-dark:#15803d; --danger:#dc2626; --warning:#f59e0b;
+            --info:#2563eb; --dark:#172033; --bg:#eef2f7; --purple:#7c3aed;
+            --text:#263244; --muted:#718096; --card:#ffffff; --border:#e5eaf0;
+            --shadow:0 10px 30px rgba(23,32,51,.08);
+        }
+        body {
+            font-family:'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+            background:linear-gradient(135deg,#eef2f7 0%,#f8fafc 55%,#edf7f1 100%);
+            margin:0; padding:0; color:var(--text);
+        }
         
         #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
         .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 350px; }
         .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
         #conteudo-principal { display: none; padding: 10px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .container {
+            max-width:1280px; margin:22px auto; background:rgba(255,255,255,.96);
+            padding:22px; border-radius:20px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.8);
+        }
         
-        .header-flex { display: flex; flex-direction: column; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 15px; }
+        .header-flex {
+            display:flex; flex-direction:column; gap:15px; border-bottom:1px solid var(--border);
+            margin-bottom:20px; padding-bottom:18px;
+        }
         @media (min-width: 768px) { .header-flex { flex-direction: row; justify-content: space-between; align-items: center; } }
         
         .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         @media (min-width: 768px) { .dashboard { grid-template-columns: repeat(5, 1fr); } }
         
-        .card { padding: 12px; border-radius: 8px; color: white; text-align: center; }
+        .card { padding:16px; border-radius:14px; color:white; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,.08); }
         .card h4 { margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; opacity: 0.9; }
         .card p { margin: 0; font-size: 1.1em; font-weight: bold; }
         
@@ -35,27 +50,46 @@
         .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .card-cartao { background: var(--purple); color: white; padding: 10px; border-radius: 8px; text-align: center;}
 
-        .section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
+        .section {
+            background:rgba(255,255,255,.92); padding:18px; border-radius:15px;
+            margin-bottom:20px; border:1px solid var(--border); box-shadow:0 5px 18px rgba(23,32,51,.04);
+        }
         .grid-form { display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 600px) { .grid-form { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); } }
         
-        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
-        button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        input, select, button {
+            padding:12px 13px; border:1px solid #dce3eb; border-radius:10px;
+            font-size:14px; width:100%; box-sizing:border-box; background:#fff; color:var(--text);
+        }
+        input:focus, select:focus {
+            outline:none; border-color:#60a5fa; box-shadow:0 0 0 3px rgba(37,99,235,.10);
+        }
+        button {
+            cursor:pointer; font-weight:700; border:none; transition:.2s;
+            display:flex; align-items:center; justify-content:center;
+        }
+        button:hover { transform:translateY(-1px); filter:brightness(1.03); }
         .btn-add { background: var(--primary); color: white; }
         .btn-backup { background: var(--purple); color: white; font-size: 12px; padding: 8px; margin-top: 5px; }
 
-        /* Nova Estrutura de Abas */
-        .abas-container { display: flex; gap: 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
-        .aba-btn { width: auto; padding: 10px 20px; border-radius: 8px 8px 0 0; background: #e0e0e0; color: #555; font-size: 14px; border: none; margin-bottom: -2px; }
-        .aba-btn.ativa { background: var(--dark); color: white; }
+        .abas-container {
+            display:flex; gap:7px; border-bottom:1px solid var(--border);
+            margin-bottom:15px; overflow-x:auto; padding-bottom:0;
+        }
+        .aba-btn {
+            width:auto; padding:11px 18px; border-radius:10px 10px 0 0; background:#edf1f5;
+            color:#5b6778; font-size:14px; border:none; margin-bottom:-1px; white-space:nowrap;
+        }
+        .aba-btn.ativa { background:var(--dark); color:white; box-shadow:0 5px 12px rgba(23,32,51,.16); }
         .aba-conteudo { display: none; }
         .aba-conteudo.ativa { display: block; }
 
-        .table-container { width: 100%; overflow-x: auto; }
+        .table-container { width:100%; overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
         table { width: 100%; border-collapse: collapse; min-width: 650px; }
-        th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th, td { padding:12px 10px; text-align:left; border-bottom:1px solid #edf0f4; font-size:14px; }
+        th { background:#f7f9fc; color:#667085; font-size:11px; letter-spacing:.05em; }
         
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-align: center; display: inline-block; min-width: 40px; }
+        .tag { padding:5px 9px; border-radius:999px; font-size:10px; font-weight:800; text-align:center; display:inline-block; min-width:40px; }
         .tag-pendente { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
         .tag-pago { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
 
@@ -64,13 +98,25 @@
         .btn-edit { background: #2980b9; color: white; }
         .btn-del { background: #e74c3c; color: white; }
 
-        .filtros-topo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #eef2f3; padding: 15px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .filtros-topo {
+            display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#f4f7fb;
+            padding:14px; border-radius:13px; width:100%; box-sizing:border-box; border:1px solid var(--border);
+        }
         @media (min-width: 768px) { .filtros-topo { display: flex; width: auto; } }
         .cartao-item { display: inline-flex; align-items: center; background: #eee; padding: 5px 10px; border-radius: 20px; margin: 2px; font-size: 12px; }
-        
-        .linha-paga { background-color: #f1f8e9; color: #2c3e50; }
+        .busca-origem-wrap { position: relative; }
+        #buscaOrigem { min-width: 190px; }
+        .origem-encontrada { background: #e8f5e9; font-weight: bold; }
 
-        /* Estilos do Gráfico de Torres */
+        .linha-paga { background-color: #f1f8e9; color: #2c3e50; }
+        .linha-pendente { background:#ffe3e3 !important; color:#9f1239 !important; }
+        .linha-pendente td { background:#ffe3e3 !important; color:#9f1239 !important; border-bottom-color:#f8b4b4 !important; }
+        .linha-pendente td strong { color:#9f1239 !important; }
+        .status-escolha { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:5px 7px; max-width:260px; }
+        .status-btn { width:auto; flex:1; border:2px solid #dbe3ec; background:#fff; color:#64748b; padding:4px 7px; border-radius:7px; font-size:11px; }
+        .status-pago-ativo { background:#e8f5e9 !important; border-color:#16a34a !important; color:#15803d !important; }
+        .status-pendente-ativo { background:#fee2e2 !important; border-color:#dc2626 !important; color:#b91c1c !important; }
+
         .grafico-torres-wrapper { width: 100%; overflow-x: auto; padding: 20px 0; margin-top: 10px; }
         .grafico-torres { display: flex; align-items: flex-end; gap: 15px; min-height: 260px; border-bottom: 2px solid #ccc; padding-bottom: 5px; min-width: max-content; }
         .torre-container { display: flex; flex-direction: column; align-items: center; width: 75px; }
@@ -79,6 +125,15 @@
         .torre-rotulo { font-size: 11px; color: #666; text-align: center; margin-top: 8px; font-weight: 500; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         @keyframes crescerTorre { from { height: 0; } }
+
+        .receita-form { background:#fffdf5; border:1px solid #f1e0a5; }
+        .receita-toolbar { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+        .btn-receita { background:#16a085; color:white; width:auto; padding:10px 16px; }
+        .btn-fechar { background:#7f8c8d; color:white; width:auto; padding:10px 16px; }
+        .receita-relatorio { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:15px 0; }
+        .mini-card { background:#f7f9f9; border:1px solid #e5e8e8; border-radius:8px; padding:12px; text-align:center; }
+        .mini-card strong { display:block; font-size:18px; margin-top:4px; }
+        .sem-dados { text-align:center; color:#888; padding:25px; }
     </style>
 </head>
 <body>
@@ -95,35 +150,48 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira V11.8</h2>
+                <h2 style="margin:0">💰 Gestão Financeira <span style="opacity:.65">V12.3</span></h2>
+                <small style="display:block;color:var(--muted);margin-top:5px;">Controle de receitas, despesas, fornecedores e cartões</small>
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <button class="btn-backup" onclick="exportarDados()">💾 Backup</button>
-                    <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 Importar</button>
+                    <button class="btn-backup" onclick="exportarDados()">💾 FAZER BACKUP</button>
+                    <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 RESTAURAR BACKUP</button>
                     <input type="file" id="importFile" style="display:none" onchange="processarImport(event)">
                 </div>
             </div>
             
             <div class="filtros-topo">
-                <div><small>Origem:</small><select id="filtroOrigem" onchange="renderizar()"></select></div>
-                <div><small>Mês:</small><input type="month" id="filtroMes" onchange="renderizar()"></div>
+                <div>
+                    <small>🔎 Buscar por origem:</small>
+                    <input type="text" id="buscaOrigem" placeholder="Ex.: Dinheiro, Nubank..." oninput="renderizar()">
+                </div>
+                <div>
+                    <small>💳 Forma de pagamento:</small>
+                    <select id="filtroOrigem" onchange="renderizar()"></select>
+                </div>
+                <div>
+                    <small>📅 Mês:</small>
+                    <input type="month" id="filtroMes" onchange="renderizar()">
+                </div>
             </div>
         </div>
 
         <div class="dashboard">
-            <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0</p></div>
-            <div class="card rec-pendente"><h4>Pendente</h4><p id="total-rec-pen">R$ 0</p></div>
-            <div class="card des-paga"><h4>Pago</h4><p id="total-des-ok">R$ 0</p></div>
-            <div class="card des-pendente"><h4>Dívida</h4><p id="total-des-pen">R$ 0</p></div>
-            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0</p></div>
+            <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0,00</p></div>
+            <div class="card rec-pendente"><h4>Pendente</h4><p id="total-rec-pen">R$ 0,00</p></div>
+            <div class="card des-paga"><h4>Pago</h4><p id="total-des-ok">R$ 0,00</p></div>
+            <div class="card des-pendente"><h4>Dívida</h4><p id="total-des-pen">R$ 0,00</p></div>
+            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0,00</p></div>
         </div>
 
         <div id="dash-cartoes" class="dashboard-cartoes"></div>
 
         <div class="section">
-            <h3 style="margin-top:0; font-size: 16px;" id="titulo-form">📝 Novo Lançamento</h3>
+            <h3 style="margin-top:0; font-size:18px;" id="titulo-form">📝 Novo Lançamento</h3>
+            <div style="color:var(--muted);font-size:12px;margin:-7px 0 13px;">Informe o fornecedor para facilitar a organização das despesas.</div>
             <div class="grid-form">
-                <input type="text" id="desc" placeholder="Descrição">
-                <input type="number" id="valor" placeholder="Valor R$">
+                <input type="text" id="desc" placeholder="Descrição do lançamento">
+                <input type="text" id="fornecedor" placeholder="Fornecedor">
+                <input type="number" id="valor" placeholder="Valor R$" step="0.01">
                 <select id="tipo" onchange="toggleCartao()">
                     <option value="fixo">Dinheiro / Pix</option>
                     <option value="cartao">Cartão de Crédito</option>
@@ -132,6 +200,13 @@
                 <select id="selectCartao" style="display:none;"></select>
                 <input type="number" id="parcelas" value="1" min="1" placeholder="Parc.">
                 <input type="date" id="dataBase">
+                <div class="status-escolha" id="statusEscolha" style="grid-column:1/-1;">
+                    <small style="display:block;margin-bottom:7px;color:var(--muted);font-weight:700;">💳 Status do gasto antes de lançar</small>
+                    <select id="statusLancamento" onchange="selecionarStatusLancamento(this.value)">
+                        <option value="pago">✅ Pago</option>
+                        <option value="pendente">🔴 Pendente</option>
+                    </select>
+                </div>
                 <button class="btn-add" id="btn-salvar" onclick="adicionarLancamento()">LANÇAR</button>
             </div>
             <div id="listaCartoes" style="margin-top:15px; border-top: 1px dotted #ccc; padding-top: 10px;">
@@ -139,19 +214,18 @@
             </div>
         </div>
 
-        <!-- Seção das Abas de Visualização (Tabela vs Gráfico de Torres) -->
         <div class="abas-container">
             <button class="aba-btn ativa" onclick="mudarAba('aba-tabela', this)">📋 Lista de Lançamentos</button>
             <button class="aba-btn" onclick="mudarAba('aba-grafico', this)">📊 Gráfico de Gastos (Torres)</button>
+            <button class="aba-btn" onclick="mudarAba('aba-receitas', this)">💰 Lista de Receitas</button>
         </div>
 
-        <!-- Conteúdo Aba 1: Tabela -->
         <div id="aba-tabela" class="aba-conteudo ativa">
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>STATUS</th><th>DESCRIÇÃO</th><th>ORIGEM</th><th>VALOR</th><th>VENC.</th><th>AÇÕES</th>
+                            <th>STATUS</th><th>DESCRIÇÃO</th><th>FORNECEDOR</th><th>CATEGORIA</th><th>VALOR</th><th>VENC.</th><th>AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody id="corpoTabela"></tbody>
@@ -159,14 +233,84 @@
             </div>
         </div>
 
-        <!-- Conteúdo Aba 2: Gráfico de Torres -->
         <div id="aba-grafico" class="aba-conteudo">
             <div class="section" style="background:#fff;">
                 <h4 style="margin:0 0 15px 0;">Ranking de Despesas por Descrição</h4>
                 <div class="grafico-torres-wrapper">
-                    <div id="container-torres" class="grafico-torres">
-                        <!-- Torres injetadas via JavaScript -->
+                    <div id="container-torres" class="grafico-torres"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="aba-receitas" class="aba-conteudo">
+            <div class="section receita-form">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <div>
+                        <h4 style="margin:0 0 5px;">💰 Receitas</h4>
+                        <small style="color:#666;">Os dados ficam somente na memória desta sessão. Faça backup antes de sair ou recarregar.</small>
                     </div>
+                    <button class="btn-receita" onclick="abrirNovaReceita()">➕ NOVA RECEITA</button>
+                </div>
+
+                <div id="formReceita" style="display:none;margin-top:15px;">
+                    <h4 id="tituloReceita" style="margin:0 0 10px;">➕ Nova Receita</h4>
+                    <div class="grid-form">
+                        <input type="text" id="recDescricao" placeholder="Descrição da receita">
+                        <input type="text" id="recCliente" placeholder="Cliente">
+                        <input type="number" id="recValor" placeholder="Valor R$" step="0.01" min="0">
+                        <select id="recCategoria">
+                            <option value="">Categoria</option>
+                            <option>Serviço / Frete</option>
+                            <option>Mudança</option>
+                            <option>Transporte</option>
+                            <option>Outro</option>
+                        </select>
+                        <select id="recFormaPagamento">
+                            <option value="">Forma de pagamento</option>
+                            <option>Pix</option>
+                            <option>Dinheiro</option>
+                            <option>Cartão</option>
+                            <option>Transferência</option>
+                            <option>Outro</option>
+                        </select>
+                        <input type="date" id="recData">
+                        <select id="recStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="recebido">Recebido</option>
+                        </select>
+                        <button class="btn-add" onclick="salvarReceita()">SALVAR RECEITA</button>
+                        <button class="btn-fechar" onclick="fecharFormReceita()">CANCELAR</button>
+                    </div>
+                </div>
+
+                <div class="receita-relatorio">
+                    <div class="mini-card">Recebidas<strong id="receitas-ok">R$ 0,00</strong></div>
+                    <div class="mini-card">Pendentes<strong id="receitas-pendentes">R$ 0,00</strong></div>
+                    <div class="mini-card">Total<strong id="receitas-total">R$ 0,00</strong></div>
+                    <div class="mini-card">Quantidade<strong id="receitas-qtd">0</strong></div>
+                </div>
+
+                <div class="receita-toolbar">
+                    <input type="text" id="buscaReceita" placeholder="🔎 Buscar descrição, cliente ou categoria..." oninput="renderizarReceitas()" style="max-width:330px;">
+                    <select id="filtroCategoriaReceita" onchange="renderizarReceitas()" style="max-width:220px;">
+                        <option value="">Todas as categorias</option>
+                        <option>Serviço / Frete</option>
+                        <option>Mudança</option>
+                        <option>Transporte</option>
+                        <option>Outro</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>STATUS</th><th>DESCRIÇÃO</th><th>CLIENTE</th><th>CATEGORIA</th>
+                                <th>PAGAMENTO</th><th>VALOR</th><th>DATA</th><th>AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoReceitas"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -184,33 +328,42 @@
 </div>
 
 <script>
-    let senhaSalva = localStorage.getItem('fin_senha_v11');
-    let lancamentos = JSON.parse(localStorage.getItem('fin_dados_v11')) || [];
-    let cartoes = JSON.parse(localStorage.getItem('fin_cards_v11')) || [];
+    let senhaSalva = sessionStorage.getItem('fin_senha_v12') || '';
+    let lancamentos = [];
+    let cartoes = [];
+    let receitasExtra = [];
     let itemEditando = null;
+    let statusLancamentoSelecionado = 'pago';
 
     window.onload = () => {
         document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
         document.getElementById('dataBase').valueAsDate = new Date();
+        document.getElementById('recData').valueAsDate = new Date();
     };
 
     function verificarLogin() {
         const pass = document.getElementById('campo-senha').value;
-        if(!senhaSalva) { localStorage.setItem('fin_senha_v11', pass); senhaSalva = pass; }
+        if(!senhaSalva) { sessionStorage.setItem('fin_senha_v12', pass); senhaSalva = pass; }
         if(pass === senhaSalva) {
             document.getElementById('tela-login').style.display = 'none';
             document.getElementById('conteudo-principal').style.display = 'block';
             renderizar();
+            renderizarReceitas();
         } else alert("Senha Incorreta!");
     }
 
-    // Gerenciador de alternância das Abas
     function mudarAba(idAba, botao) {
         document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.remove('ativa'));
         document.querySelectorAll('.aba-btn').forEach(el => el.classList.remove('ativa'));
         
         document.getElementById(idAba).classList.add('ativa');
         botao.classList.add('ativa');
+    }
+
+    function selecionarStatusLancamento(status) {
+        statusLancamentoSelecionado = status;
+        const select = document.getElementById('statusLancamento');
+        if(select) select.value = status;
     }
 
     function toggleCartao() {
@@ -223,27 +376,36 @@
         const d = document.getElementById('vencimentoCartao');
         if(!n.value || !d.value) return alert("Preencha nome e dia!");
         cartoes.push({nome: n.value.toUpperCase(), dia: parseInt(d.value)});
-        localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
         n.value = ''; d.value = ''; renderizar();
     }
 
     function excluirCartao(index) {
         if(confirm("Remover cartão?")) {
             cartoes.splice(index, 1);
-            localStorage.setItem('fin_cards_v11', JSON.stringify(cartoes));
             renderizar();
         }
     }
 
+    function limparCampos() {
+        document.getElementById('desc').value = '';
+        document.getElementById('fornecedor').value = '';
+        document.getElementById('valor').value = '';
+        document.getElementById('parcelas').value = 1;
+        document.getElementById('tipo').value = 'fixo';
+        selecionarStatusLancamento('pago');
+        toggleCartao();
+    }
+
     function adicionarLancamento() {
-        const desc = document.getElementById('desc').value;
+        const desc = document.getElementById('desc').value.trim();
+        const fornecedor = document.getElementById('fornecedor').value.trim();
         const valorInp = document.getElementById('valor').value;
         const tipo = document.getElementById('tipo').value;
-        const parc = parseInt(document.getElementById('parcelas').value);
+        const parc = parseInt(document.getElementById('parcelas').value) || 1;
         const dataInp = document.getElementById('dataBase').value;
         const cart = document.getElementById('selectCartao').value;
 
-        if(!desc || !valorInp || !dataInp) return alert("Preencha tudo!");
+        if(!desc || !fornecedor || !valorInp || !dataInp) return alert("Preencha descrição, fornecedor, valor e data!");
 
         if(itemEditando !== null) {
             const grupoItems = lancamentos.filter(l => l.idGrupo === itemEditando.idGrupo);
@@ -257,6 +419,7 @@
                 lancamentos.forEach(l => {
                     if(l.idGrupo === itemEditando.idGrupo) {
                         l.desc = l.desc.includes('(') ? `${desc} ${l.desc.substring(l.desc.lastIndexOf('('))}` : desc;
+                        l.fornecedor = fornecedor;
                         l.valor = parseFloat(valorInp);
                         l.tipo = tipo;
                         l.origem = tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro');
@@ -291,18 +454,18 @@
                 id: Date.now() + i, 
                 idGrupo, 
                 desc: parc > 1 ? `${desc} (${i+1}/${parc})` : desc,
+                fornecedor: fornecedor,
                 valor: valorUnitario, 
                 tipo,
                 origem: tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro'),
                 vencimento: dt.toISOString().substring(0, 10), 
-                pago: false
+                pago: tipo === 'receita' ? false : (statusLancamentoSelecionado === 'pago')
             });
         }
         finalizarAcao();
     }
 
     function finalizarAcao() {
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
         itemEditando = null;
         document.getElementById('titulo-form').innerText = "📝 Novo Lançamento";
         document.getElementById('btn-salvar').innerText = "LANÇAR";
@@ -317,6 +480,7 @@
         itemEditando = l;
         
         document.getElementById('desc').value = l.desc.split(' (')[0];
+        document.getElementById('fornecedor').value = l.fornecedor || '';
         document.getElementById('valor').value = l.valor;
         document.getElementById('tipo').value = l.tipo;
         document.getElementById('dataBase').value = l.vencimento;
@@ -333,13 +497,16 @@
 
     function alternarStatus(id) {
         const idx = lancamentos.findIndex(l => l.id === id);
-        lancamentos[idx].pago = !lancamentos[idx].pago;
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-        renderizar();
+        if(idx !== -1) {
+            lancamentos[idx].pago = !lancamentos[idx].pago;
+            renderizar();
+            renderizarReceitas();
+        }
     }
 
     function deletar(id) {
         const item = lancamentos.find(l => l.id === id);
+        if(!item) return;
         const grupo = lancamentos.filter(l => l.idGrupo === item.idGrupo);
         
         let deletarTudo = false;
@@ -354,22 +521,36 @@
                 lancamentos = lancamentos.filter(l => l.id !== id);
             } else return;
         }
-
-        localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
         renderizar();
+        renderizarReceitas();
+    }
+
+    function quitarFatura(nomeCartao) {
+        const mes = document.getElementById('filtroMes').value;
+        if(confirm(`Deseja quitar toda a fatura de ${nomeCartao} para o mês selecionado?`)) {
+            lancamentos.forEach(l => {
+                if(l.origem === nomeCartao && l.vencimento.startsWith(mes)) {
+                    l.pago = true;
+                }
+            });
+            renderizar();
+        }
     }
 
     function renderizar() {
         const mes = document.getElementById('filtroMes').value;
         const origemF = document.getElementById('filtroOrigem').value || 'tudo';
+        const buscaOrigem = (document.getElementById('buscaOrigem')?.value || '').trim().toUpperCase();
+
         const corpo = document.getElementById('corpoTabela');
         const selC = document.getElementById('selectCartao');
         const chips = document.getElementById('chips-cartoes');
         const fOrigem = document.getElementById('filtroOrigem');
 
         const curF = fOrigem.value;
-        let htmlF = '<option value="tudo">Tudo</option><option value="Entrada">Receitas</option><option value="Dinheiro">Dinheiro</option>';
-        selC.innerHTML = '<option value="">Selecionar Cartão</option>';
+        let htmlF = '<option value="tudo">💳 Todos</option><option value="Entrada">💰 Receitas</option><option value="Dinheiro">💵 Dinheiro / Pix</option>';
+
+        selC.innerHTML = '<option value="">💳 Selecionar cartão ativo</option>';
         chips.innerHTML = '';
 
         cartoes.forEach((c, idx) => {
@@ -377,45 +558,52 @@
             selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
             chips.innerHTML += `<span class="cartao-item">${c.nome} <b onclick="excluirCartao(${idx})" style="color:red; cursor:pointer">×</b></span>`;
         });
+
         fOrigem.innerHTML = htmlF;
-        fOrigem.value = curF || 'tudo';
+        fOrigem.value = [...fOrigem.options].some(o => o.value === curF) ? curF : 'tudo';
 
         let rOK = 0, rPEN = 0, dOK = 0, dPEN = 0;
         corpo.innerHTML = '';
         document.getElementById('dash-cartoes').innerHTML = '';
 
-        const filtrados = lancamentos.filter(l => l.vencimento.startsWith(mes) && (origemF === 'tudo' || l.origem === origemF));
-
-        // Acumulador para o gráfico de torres
-        const mapaGastos = {};
-
-        filtrados.sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento)).forEach(l => {
-            if(l.tipo === 'receita') {
-                l.pago ? rOK += l.valor : rPEN += l.valor;
-            } else {
-                l.pago ? dOK += l.valor : dPEN += l.valor;
-
-                // Limpa o nome da descrição retirando marcações de parcelas como "(1/10)"
-                const descLimpa = l.desc.split(' (')[0].toUpperCase().trim();
-                mapaGastos[descLimpa] = (mapaGastos[descLimpa] || 0) + l.valor;
-            }
-
-            corpo.innerHTML += `
-                <tr class="${l.pago ? 'linha-paga' : ''}">
-                    <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}" onclick="alternarStatus(${l.id})" style="cursor:pointer">${l.pago ? 'OK' : 'PEND'}</span></td>
-                    <td>${l.desc}</td>
-                    <td>${l.origem}</td>
-                    <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'green' : 'inherit'}">R$ ${l.valor.toFixed(2)}</td>
-                    <td>${l.vencimento.split('-')[2]}</td>
-                    <td>
-                        <button class="btn-acao btn-check" onclick="alternarStatus(${l.id})">${l.pago ? '😎 Pago' : '✔ OK'}</button>
-                        <button class="btn-acao btn-edit" onclick="editarLancamento(${l.id})">✏️</button>
-                        <button class="btn-acao btn-del" onclick="deletar(${l.id})">🗑</button>
-                    </td>
-                </tr>`;
+        const filtrados = lancamentos.filter(l => {
+            const mesmaMes = l.vencimento.startsWith(mes);
+            const mesmaOrigem = origemF === 'tudo' || l.origem === origemF;
+            const origemContemBusca = !buscaOrigem || String(l.origem).toUpperCase().includes(buscaOrigem);
+            return mesmaMes && mesmaOrigem && origemContemBusca;
         });
 
-        // Renderização do Gráfico de Torres
+        const mapaGastos = {};
+
+        filtrados
+            .sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento))
+            .forEach(l => {
+                if(l.tipo === 'receita') {
+                    l.pago ? rOK += l.valor : rPEN += l.valor;
+                } else {
+                    l.pago ? dOK += l.valor : dPEN += l.valor;
+
+                    const descLimpa = l.desc.split(' (')[0].toUpperCase().trim();
+                    mapaGastos[descLimpa] = (mapaGastos[descLimpa] || 0) + l.valor;
+                }
+
+                corpo.innerHTML += `
+                    <tr class="${l.pago ? 'linha-paga' : 'linha-pendente'}">
+                        <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}" onclick="alternarStatus(${l.id})" style="cursor:pointer">${l.pago ? 'OK' : 'PEND'}</span></td>
+                        <td>${l.desc}</td>
+                        <td><strong>${l.fornecedor || '-'}</strong></td>
+                        <td class="${buscaOrigem && String(l.origem).toUpperCase().includes(buscaOrigem) ? 'origem-encontrada' : ''}">${l.origem}</td>
+                        <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'green' : 'inherit'}">R$ ${l.valor.toFixed(2)}</td>
+                        <td>${l.vencimento.split('-')[2]}</td>
+                        <td>
+                            <button class="btn-acao btn-check" onclick="alternarStatus(${l.id})">${l.pago ? '😎 Pago' : '🔴 Pendente'}</button>
+                            <button class="btn-acao btn-edit" onclick="editarLancamento(${l.id})">✏️</button>
+                            <button class="btn-acao btn-del" onclick="deletar(${l.id})">🗑</button>
+                        </td>
+                    </tr>`;
+            });
+
+        // Gráfico de Torres
         const containerTorres = document.getElementById('container-torres');
         containerTorres.innerHTML = '';
 
@@ -424,12 +612,11 @@
             .sort((a, b) => b.valor - a.valor);
 
         if (listaOrdenada.length > 0) {
-            const maiorValor = listaOrdenada[0].valor; // O topo serve como 100% da altura
+            const maiorValor = listaOrdenada[0].valor;
 
             listaOrdenada.forEach(item => {
-                // Calcula a porcentagem da altura em relação ao maior gasto (máximo 200px para o container de 260px)
                 const alturaCalculada = maiorValor > 0 ? (item.valor / maiorValor) * 200 : 0;
-                
+
                 containerTorres.innerHTML += `
                     <div class="torre-container">
                         <div class="torre-valor">R$ ${item.valor.toFixed(0)}</div>
@@ -438,13 +625,20 @@
                     </div>`;
             });
         } else {
-            containerTorres.innerHTML = '<p style="color:#888; font-size:14px; padding: 20px;">Nenhuma despesa registrada neste mês.</p>';
+            containerTorres.innerHTML = '<p style="color:#888; font-size:14px; padding: 20px;">Nenhuma despesa encontrada para os filtros selecionados.</p>';
         }
 
-        // Dashboard Cartões
+        // Cartões
         cartoes.forEach(c => {
-            const fatura = lancamentos.filter(l => l.origem === c.nome && l.vencimento.startsWith(mes));
+            const fatura = lancamentos.filter(l => {
+                const mesmaMes = l.origem === c.nome && l.vencimento.startsWith(mes);
+                const mesmaBusca = !buscaOrigem || String(l.origem).toUpperCase().includes(buscaOrigem);
+                const mesmaSelecao = origemF === 'tudo' || l.origem === origemF;
+                return mesmaMes && mesmaBusca && mesmaSelecao;
+            });
+
             const total = fatura.reduce((a, b) => a + b.valor, 0);
+
             if(total > 0) {
                 const pend = fatura.some(l => !l.pago);
                 document.getElementById('dash-cartoes').innerHTML += `
@@ -461,42 +655,188 @@
         document.getElementById('total-rec-pen').innerText = `R$ ${rPEN.toFixed(2)}`;
         document.getElementById('total-des-ok').innerText = `R$ ${dOK.toFixed(2)}`;
         document.getElementById('total-des-pen').innerText = `R$ ${dPEN.toFixed(2)}`;
-        document.getElementById('total-saldo').innerText = `R$ ${(rOK + rPEN - dOK - dPEN).toFixed(2)}`;
+        document.getElementById('total-saldo').innerText = `R$ ${(rOK - dOK).toFixed(2)}`;
     }
 
-    function quitarFatura(nomeC) {
-        const mes = document.getElementById('filtroMes').value;
-        if(confirm(`Quitar todas as contas de ${nomeC} em ${mes}?`)) {
-            lancamentos.forEach(l => { if(l.origem === nomeC && l.vencimento.startsWith(mes)) l.pago = true; });
-            localStorage.setItem('fin_dados_v11', JSON.stringify(lancamentos));
-            renderizar();
+    // Lógica da Aba 3 (Receitas)
+    function abrirNovaReceita() {
+        document.getElementById('formReceita').style.display = 'block';
+    }
+
+    function fecharFormReceita() {
+        document.getElementById('formReceita').style.display = 'none';
+        document.getElementById('recDescricao').value = '';
+        document.getElementById('recCliente').value = '';
+        document.getElementById('recValor').value = '';
+        document.getElementById('recCategoria').value = '';
+        document.getElementById('recFormaPagamento').value = '';
+    }
+
+    function salvarReceita() {
+        const desc = document.getElementById('recDescricao').value.trim();
+        const cliente = document.getElementById('recCliente').value.trim();
+        const valor = parseFloat(document.getElementById('recValor').value);
+        const categoria = document.getElementById('recCategoria').value;
+        const pagamento = document.getElementById('recFormaPagamento').value;
+        const data = document.getElementById('recData').value;
+        const status = document.getElementById('recStatus').value;
+
+        if(!desc || !valor || valor <= 0 || !data) return alert("Preencha descrição, valor e data!");
+
+        receitasExtra.push({
+            id: Date.now(),
+            desc, cliente, valor, categoria, pagamento, data, status
+        });
+
+        fecharFormReceita();
+        renderizarReceitas();
+    }
+
+    function alternarStatusReceita(id) {
+        const idx = receitasExtra.findIndex(r => r.id === id);
+        if(idx !== -1) {
+            receitasExtra[idx].status = receitasExtra[idx].status === 'recebido' ? 'pendente' : 'recebido';
+            renderizarReceitas();
         }
     }
 
-    function limparCampos() {
-        document.getElementById('desc').value = '';
-        document.getElementById('valor').value = '';
-        document.getElementById('parcelas').value = '1';
+    function deletarReceita(id) {
+        if(confirm("Excluir esta receita?")) {
+            receitasExtra = receitasExtra.filter(r => r.id !== id);
+            renderizarReceitas();
+        }
     }
 
+    function renderizarReceitas() {
+        const busca = (document.getElementById('buscaReceita')?.value || '').toLowerCase();
+        const catFiltro = document.getElementById('filtroCategoriaReceita')?.value || '';
+        const corpo = document.getElementById('corpoReceitas');
+        if(!corpo) return;
+
+        corpo.innerHTML = '';
+
+        // Receitas cadastradas na aba "Lista de Receitas"
+        // + receitas feitas diretamente em "Novo Lançamento".
+        const receitasDoLancamento = lancamentos
+            .filter(l => l.tipo === 'receita')
+            .map(l => ({
+                id: `lancamento_${l.id}`,
+                idLancamento: l.id,
+                desc: l.desc,
+                cliente: l.fornecedor || '',
+                categoria: 'Receita (Ganho)',
+                pagamento: l.origem || 'Entrada',
+                valor: Number(l.valor) || 0,
+                data: l.vencimento,
+                status: l.pago ? 'recebido' : 'pendente',
+                origemLancamento: true
+            }));
+
+        const todasReceitas = [...receitasExtra, ...receitasDoLancamento];
+
+        let ok = 0, pen = 0, total = 0, qtd = 0;
+
+        const filtradas = todasReceitas.filter(r => {
+            const combinaBusca =
+                !busca ||
+                String(r.desc || '').toLowerCase().includes(busca) ||
+                String(r.cliente || '').toLowerCase().includes(busca) ||
+                String(r.categoria || '').toLowerCase().includes(busca);
+
+            const combinaCat = !catFiltro || r.categoria === catFiltro;
+            return combinaBusca && combinaCat;
+        });
+
+        filtradas
+            .sort((a,b) => new Date(a.data) - new Date(b.data))
+            .forEach(r => {
+                const valor = Number(r.valor) || 0;
+                total += valor;
+                qtd++;
+
+                if(r.status === 'recebido') ok += valor;
+                else pen += valor;
+
+                const acaoStatus = r.origemLancamento
+                    ? `alternarStatus(${r.idLancamento})`
+                    : `alternarStatusReceita(${r.id})`;
+
+                const acaoExcluir = r.origemLancamento
+                    ? `deletar(${r.idLancamento})`
+                    : `deletarReceita(${r.id})`;
+
+                corpo.innerHTML += `
+                    <tr class="${r.status === 'recebido' ? 'linha-paga' : ''}">
+                        <td>
+                            <span class="tag ${r.status === 'recebido' ? 'tag-pago' : 'tag-pendente'}"
+                                  onclick="${acaoStatus}" style="cursor:pointer">
+                                ${r.status === 'recebido' ? 'OK' : 'PEND'}
+                            </span>
+                        </td>
+                        <td>
+                            ${r.desc}
+                            ${r.origemLancamento
+                                ? '<small style="color:#16a085;font-weight:bold;"> • Lançamento</small>'
+                                : ''}
+                        </td>
+                        <td>${r.cliente || '-'}</td>
+                        <td>${r.categoria || '-'}</td>
+                        <td>${r.pagamento || '-'}</td>
+                        <td style="font-weight:bold; color:green">R$ ${valor.toFixed(2)}</td>
+                        <td>${r.data ? r.data.split('-').reverse().join('/') : '-'}</td>
+                        <td>
+                            <button class="btn-acao btn-check" onclick="${acaoStatus}">
+                                ${r.status === 'recebido' ? '😎 Recebido' : '✔ OK'}
+                            </button>
+                            <button class="btn-acao btn-del" onclick="${acaoExcluir}">🗑</button>
+                        </td>
+                    </tr>`;
+            });
+
+        if(filtradas.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="8" class="sem-dados">Nenhuma receita cadastrada.</td></tr>';
+        }
+
+        document.getElementById('receitas-ok').innerText = `R$ ${ok.toFixed(2)}`;
+        document.getElementById('receitas-pendentes').innerText = `R$ ${pen.toFixed(2)}`;
+        document.getElementById('receitas-total').innerText = `R$ ${total.toFixed(2)}`;
+        document.getElementById('receitas-qtd').innerText = qtd;
+    }
+
+    // Backup e Importação
     function exportarDados() {
-        const data = JSON.stringify({lancamentos, cartoes, senhaSalva});
-        const blob = new Blob([data], {type: 'application/json'});
+        const dados = {
+            lancamentos,
+            cartoes,
+            receitasExtra
+        };
+        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_financeiro.json`;
+        a.href = url;
+        a.download = `backup_financeiro_${new Date().toISOString().substring(0,10)}.json`;
         a.click();
     }
 
     function processarImport(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+
         const reader = new FileReader();
-        reader.onload = (ev) => {
-            const d = JSON.parse(ev.target.result);
-            localStorage.setItem('fin_dados_v11', JSON.stringify(d.lancamentos));
-            localStorage.setItem('fin_cards_v11', JSON.stringify(d.cartoes));
-            location.reload();
+        reader.onload = (evt) => {
+            try {
+                const dados = JSON.parse(evt.target.result);
+                if(dados.lancamentos) lancamentos = dados.lancamentos;
+                if(dados.cartoes) cartoes = dados.cartoes;
+                if(dados.receitasExtra) receitasExtra = dados.receitasExtra;
+                alert("Backup restaurado com sucesso!");
+                renderizar();
+                renderizarReceitas();
+            } catch(err) {
+                alert("Erro ao ler arquivo de backup inválido.");
+            }
         };
-        reader.readAsText(e.target.files[0]);
+        reader.readAsText(file);
     }
 </script>
 </body>
