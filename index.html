@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Pro - V12.3</title>
+    <title>Financeiro Pro - V12.7</title>
     <style>
         :root {
             --primary:#16a34a; --primary-dark:#15803d; --danger:#dc2626; --warning:#f59e0b;
@@ -34,21 +34,26 @@
         @media (min-width: 768px) { .header-flex { flex-direction: row; justify-content: space-between; align-items: center; } }
         
         .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        @media (min-width: 768px) { .dashboard { grid-template-columns: repeat(5, 1fr); } }
+        @media (min-width: 768px) { .dashboard { grid-template-columns: repeat(6, 1fr); } }
         
         .card { padding:16px; border-radius:14px; color:white; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,.08); }
-        .card h4 { margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; opacity: 0.9; }
+        .card h4 { margin: 0 0 5px 0; font-size: 0.72em; text-transform: uppercase; opacity: 0.9; }
         .card p { margin: 0; font-size: 1.1em; font-weight: bold; }
         
         .rec-recebida { background: var(--primary); }
         .rec-pendente { background: #1abc9c; }
         .des-paga { background: var(--info); }
         .des-pendente { background: var(--danger); }
-        .saldo-total { background: var(--dark); grid-column: span 2; }
-        @media (min-width: 768px) { .saldo-total { grid-column: span 1; } }
+        .saldo-dinamico { background: #0284c7; }
+        .saldo-total { background: var(--dark); }
 
-        .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .card-cartao { background: var(--purple); color: white; padding: 10px; border-radius: 8px; text-align: center;}
+        .dashboard-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .card-cartao { background: var(--purple); color: white; padding: 12px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+        .card-cartao h5 { margin: 0; font-size: 0.85em; opacity: 0.9; }
+        .card-cartao p { margin: 0; font-size: 1.1em; font-weight: bold; }
+        .card-cartao small { font-size: 10px; opacity: 0.85; }
+        .btn-quitar-cartao { background: #22c55e; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-quitar-cartao:hover { background: #16a34a; transform: translateY(-1px); }
 
         .section {
             background:rgba(255,255,255,.92); padding:18px; border-radius:15px;
@@ -104,18 +109,12 @@
         }
         @media (min-width: 768px) { .filtros-topo { display: flex; width: auto; } }
         .cartao-item { display: inline-flex; align-items: center; background: #eee; padding: 5px 10px; border-radius: 20px; margin: 2px; font-size: 12px; }
-        .busca-origem-wrap { position: relative; }
-        #buscaOrigem { min-width: 190px; }
-        .origem-encontrada { background: #e8f5e9; font-weight: bold; }
 
         .linha-paga { background-color: #f1f8e9; color: #2c3e50; }
         .linha-pendente { background:#ffe3e3 !important; color:#9f1239 !important; }
         .linha-pendente td { background:#ffe3e3 !important; color:#9f1239 !important; border-bottom-color:#f8b4b4 !important; }
         .linha-pendente td strong { color:#9f1239 !important; }
         .status-escolha { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:5px 7px; max-width:260px; }
-        .status-btn { width:auto; flex:1; border:2px solid #dbe3ec; background:#fff; color:#64748b; padding:4px 7px; border-radius:7px; font-size:11px; }
-        .status-pago-ativo { background:#e8f5e9 !important; border-color:#16a34a !important; color:#15803d !important; }
-        .status-pendente-ativo { background:#fee2e2 !important; border-color:#dc2626 !important; color:#b91c1c !important; }
 
         .grafico-torres-wrapper { width: 100%; overflow-x: auto; padding: 20px 0; margin-top: 10px; }
         .grafico-torres { display: flex; align-items: flex-end; gap: 15px; min-height: 260px; border-bottom: 2px solid #ccc; padding-bottom: 5px; min-width: max-content; }
@@ -134,7 +133,7 @@
         .mini-card { background:#f7f9f9; border:1px solid #e5e8e8; border-radius:8px; padding:12px; text-align:center; }
         .mini-card strong { display:block; font-size:18px; margin-top:4px; }
         .sem-dados { text-align:center; color:#888; padding:25px; }
-    
+        
         .filtros-topo > div { min-width:0; flex:1; }
         #buscaOrigem { min-width:0; width:100%; }
         .grid-form > * { min-width:0; }
@@ -148,7 +147,6 @@
             .card { padding:11px 8px; }
             .card p { font-size:1em; }
         }
-
     </style>
 </head>
 <body>
@@ -165,8 +163,8 @@
     <div class="container">
         <div class="header-flex">
             <div>
-                <h2 style="margin:0">💰 Gestão Financeira <span style="opacity:.65">V12.3</span></h2>
-                <small style="display:block;color:var(--muted);margin-top:5px;">Controle de receitas, despesas, fornecedores e cartões</small>
+                <h2 style="margin:0">💰 Gestão Financeira <span style="opacity:.65">V12.7</span></h2>
+                <small style="display:block;color:var(--muted);margin-top:5px;">Modo Sessão (Sem LocalStorage) | Saldo do Mês Atualizado conforme Pagamento das Dívidas</small>
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <button class="btn-backup" onclick="exportarDados()">💾 FAZER BACKUP</button>
                     <button class="btn-backup" style="background:#2c3e50" onclick="document.getElementById('importFile').click()">📂 RESTAURAR BACKUP</button>
@@ -191,11 +189,12 @@
         </div>
 
         <div class="dashboard">
-            <div class="card rec-recebida"><h4>Recebido</h4><p id="total-rec-ok">R$ 0,00</p></div>
-            <div class="card rec-pendente"><h4>Pendente</h4><p id="total-rec-pen">R$ 0,00</p></div>
-            <div class="card des-paga"><h4>Pago</h4><p id="total-des-ok">R$ 0,00</p></div>
-            <div class="card des-pendente"><h4>Dívida</h4><p id="total-des-pen">R$ 0,00</p></div>
-            <div class="card saldo-total"><h4>Saldo Final</h4><p id="total-saldo">R$ 0,00</p></div>
+            <div class="card rec-recebida"><h4>Recebido (Mês)</h4><p id="total-rec-ok">R$ 0,00</p></div>
+            <div class="card rec-pendente"><h4>A Receber (Mês)</h4><p id="total-rec-pen">R$ 0,00</p></div>
+            <div class="card des-paga"><h4>Pago (Mês)</h4><p id="total-des-ok">R$ 0,00</p></div>
+            <div class="card des-pendente"><h4>Dívida Pendente</h4><p id="total-des-pen">R$ 0,00</p></div>
+            <div class="card saldo-dinamico"><h4>Saldo Atual (Mês)</h4><p id="total-saldo-dinamico">R$ 0,00</p></div>
+            <div class="card saldo-total"><h4>Saldo Acumulado</h4><p id="total-saldo">R$ 0,00</p></div>
         </div>
 
         <div id="dash-cartoes" class="dashboard-cartoes"></div>
@@ -276,8 +275,8 @@
             <div class="section receita-form">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
                     <div>
-                        <h4 style="margin:0 0 5px;">💰 Receitas</h4>
-                        <small style="color:#666;">Os dados ficam somente na memória desta sessão. Faça backup antes de sair ou recarregar.</small>
+                        <h4 style="margin:0 0 5px;">💰 Receitas Extra</h4>
+                        <small style="color:#666;">Dados armazenados em memória durante o uso.</small>
                     </div>
                     <button class="btn-receita" onclick="abrirNovaReceita()">➕ NOVA RECEITA</button>
                 </div>
@@ -358,11 +357,13 @@
 </div>
 
 <script>
-    let senhaSalva = sessionStorage.getItem('fin_senha_v12') || '';
+    let senhaSalva = '';
     let lancamentos = [];
     let cartoes = [];
     let receitasExtra = [];
+    
     let itemEditando = null;
+    let receitaEditando = null;
     let statusLancamentoSelecionado = 'pago';
 
     window.onload = () => {
@@ -373,7 +374,7 @@
 
     function verificarLogin() {
         const pass = document.getElementById('campo-senha').value;
-        if(!senhaSalva) { sessionStorage.setItem('fin_senha_v12', pass); senhaSalva = pass; }
+        if(!senhaSalva) { senhaSalva = pass; }
         if(pass === senhaSalva) {
             document.getElementById('tela-login').style.display = 'none';
             document.getElementById('conteudo-principal').style.display = 'block';
@@ -406,13 +407,41 @@
         const d = document.getElementById('vencimentoCartao');
         if(!n.value || !d.value) return alert("Preencha nome e dia!");
         cartoes.push({nome: n.value.toUpperCase(), dia: parseInt(d.value)});
-        n.value = ''; d.value = ''; renderizar();
+        n.value = ''; d.value = ''; 
+        renderizar();
     }
 
     function excluirCartao(index) {
         if(confirm("Remover cartão?")) {
             cartoes.splice(index, 1);
             renderizar();
+        }
+    }
+
+    function quitarCartao(nomeCartao) {
+        const mes = document.getElementById('filtroMes').value;
+        const lancamentosDoCartaoNoMes = lancamentos.filter(l => l.origem === nomeCartao && l.vencimento.startsWith(mes));
+
+        if(lancamentosDoCartaoNoMes.length === 0) {
+            alert(`Não existem despesas no cartão ${nomeCartao} para este mês!`);
+            return;
+        }
+
+        const pendentes = lancamentosDoCartaoNoMes.filter(l => !l.pago);
+
+        if(pendentes.length === 0) {
+            alert(`Todas as despesas do cartão ${nomeCartao} neste mês já estão marcadas como PAGAS!`);
+            return;
+        }
+
+        if(confirm(`Quitar fatura do cartão ${nomeCartao}?\n\n${pendentes.length} item(ns) pendente(s) serão marcados como PAGO(S).`)) {
+            lancamentos.forEach(l => {
+                if(l.origem === nomeCartao && l.vencimento.startsWith(mes)) {
+                    l.pago = true;
+                }
+            });
+            renderizar();
+            renderizarReceitas();
         }
     }
 
@@ -488,11 +517,12 @@
                 idGrupo, 
                 desc: parc > 1 ? `${desc} (${i+1}/${parc})` : desc,
                 fornecedor: fornecedor,
+                categoria: categoria,
                 valor: valorUnitario, 
                 tipo,
                 origem: tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro'),
                 vencimento: dt.toISOString().substring(0, 10), 
-                pago: tipo === 'receita' ? false : (statusLancamentoSelecionado === 'pago')
+                pago: tipo === 'receita' ? true : (statusLancamentoSelecionado === 'pago')
             });
         }
         finalizarAcao();
@@ -559,16 +589,8 @@
         renderizarReceitas();
     }
 
-    function quitarFatura(nomeCartao) {
-        const mes = document.getElementById('filtroMes').value;
-        if(confirm(`Deseja quitar toda a fatura de ${nomeCartao} para o mês selecionado?`)) {
-            lancamentos.forEach(l => {
-                if(l.origem === nomeCartao && l.vencimento.startsWith(mes)) {
-                    l.pago = true;
-                }
-            });
-            renderizar();
-        }
+    function formatarMoeda(val) {
+        return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
     function renderizar() {
@@ -580,135 +602,189 @@
         const selC = document.getElementById('selectCartao');
         const chips = document.getElementById('chips-cartoes');
         const fOrigem = document.getElementById('filtroOrigem');
+        const dashCartoes = document.getElementById('dash-cartoes');
 
-        const curF = fOrigem.value;
         let htmlF = '<option value="tudo">💳 Todos</option><option value="Entrada">💰 Receitas</option><option value="Dinheiro">💵 Dinheiro / Pix</option>';
 
         selC.innerHTML = '<option value="">💳 Selecionar cartão ativo</option>';
         chips.innerHTML = '';
+        dashCartoes.innerHTML = '';
 
         cartoes.forEach((c, idx) => {
             htmlF += `<option value="${c.nome}">${c.nome}</option>`;
-            selC.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            chips.innerHTML += `<span class="cartao-item">${c.nome} <b onclick="excluirCartao(${idx})" style="color:red; cursor:pointer">×</b></span>`;
+            selC.innerHTML += `<option value="${c.nome}">${c.nome} (Venc. dia ${c.dia})</option>`;
+            chips.innerHTML += `<span class="cartao-item">💳 ${c.nome} (Venc: ${c.dia}) <b onclick="excluirCartao(${idx})" style="cursor:pointer;margin-left:5px;color:red;">✕</b></span> `;
+
+            const lancamentosCartaoMes = lancamentos.filter(l => l.origem === c.nome && l.vencimento.startsWith(mes));
+            const totalFatura = lancamentosCartaoMes.reduce((acc, l) => acc + l.valor, 0);
+            const pendenteFatura = lancamentosCartaoMes.filter(l => !l.pago).reduce((acc, l) => acc + l.valor, 0);
+
+            dashCartoes.innerHTML += `
+                <div class="card-cartao">
+                    <div>
+                        <h5>💳 ${c.nome}</h5>
+                        <p>${formatarMoeda(totalFatura)}</p>
+                        <small>Pendente: ${formatarMoeda(pendenteFatura)}</small>
+                    </div>
+                    ${pendenteFatura > 0 ? `<button class="btn-quitar-cartao" onclick="quitarCartao('${c.nome}')">QUITAR FATURA</button>` : `<small style="color:#a7f3d0;font-weight:bold;">✅ FATURA PAGA</small>`}
+                </div>
+            `;
         });
 
-        fOrigem.innerHTML = htmlF;
-        fOrigem.value = [...fOrigem.options].some(o => o.value === curF) ? curF : 'tudo';
+        if (fOrigem) fOrigem.innerHTML = htmlF;
+        if (origemF !== 'tudo' && fOrigem) fOrigem.value = origemF;
 
-        let rOK = 0, rPEN = 0, dOK = 0, dPEN = 0;
         corpo.innerHTML = '';
-        document.getElementById('dash-cartoes').innerHTML = '';
+        let rOk = 0, rPen = 0, dOk = 0, dPen = 0;
 
         const filtrados = lancamentos.filter(l => {
-            const mesmaMes = l.vencimento.startsWith(mes);
-            const mesmaOrigem = origemF === 'tudo' || l.origem === origemF;
-            const textoBusca = [l.desc, l.fornecedor, l.categoria, l.origem,
-                l.tipo === 'cartao' ? 'CARTÃO DE CRÉDITO' : '',
-                l.tipo === 'fixo' ? 'DINHEIRO PIX' : '',
-                l.tipo === 'receita' ? 'RECEITA' : ''
-            ].map(v => String(v || '').toUpperCase()).join(' ');
-            const buscaCompleta = !buscaOrigem || textoBusca.includes(buscaOrigem);
-            return mesmaMes && mesmaOrigem && buscaCompleta;
+            const baterMes = mes ? l.vencimento.startsWith(mes) : true;
+            const baterOrigem = origemF === 'tudo' ? true : l.origem === origemF;
+
+            const termo = buscaOrigem;
+            const descMatch = (l.desc || '').toUpperCase().includes(termo);
+            const fornMatch = (l.fornecedor || '').toUpperCase().includes(termo);
+            const catMatch = (l.categoria || '').toUpperCase().includes(termo);
+            const origMatch = (l.origem || '').toUpperCase().includes(termo);
+            const baterBusca = !termo || descMatch || fornMatch || catMatch || origMatch;
+
+            return baterMes && baterOrigem && baterBusca;
         });
 
-        const mapaGastos = {};
+        filtrados.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
 
-        filtrados
-            .sort((a,b) => new Date(a.vencimento) - new Date(b.vencimento))
-            .forEach(l => {
-                if(l.tipo === 'receita') {
-                    l.pago ? rOK += l.valor : rPEN += l.valor;
-                } else {
-                    l.pago ? dOK += l.valor : dPEN += l.valor;
-
-                    const categoriaGrafico = (l.categoria || 'SEM CATEGORIA').toUpperCase().trim();
-                    mapaGastos[categoriaGrafico] = (mapaGastos[categoriaGrafico] || 0) + l.valor;
-                }
-
-                corpo.innerHTML += `
-                    <tr class="${l.pago ? 'linha-paga' : 'linha-pendente'}">
-                        <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}" onclick="alternarStatus(${l.id})" style="cursor:pointer">${l.pago ? 'OK' : 'PEND'}</span></td>
-                        <td>${l.desc}</td>
-                        <td><strong>${l.fornecedor || '-'}</strong></td>
-                        <td>${l.categoria || '-'}</td>
-                        <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'green' : 'inherit'}">R$ ${l.valor.toFixed(2)}</td>
-                        <td>${l.vencimento.split('-')[2]}</td>
-                        <td>
-                            <button class="btn-acao btn-check" onclick="alternarStatus(${l.id})">${l.pago ? '😎 Pago' : '🔴 Pendente'}</button>
-                            <button class="btn-acao btn-edit" onclick="editarLancamento(${l.id})">✏️</button>
-                            <button class="btn-acao btn-del" onclick="deletar(${l.id})">🗑</button>
-                        </td>
-                    </tr>`;
-            });
-
-        // Gráfico de Torres
-        const containerTorres = document.getElementById('container-torres');
-        containerTorres.innerHTML = '';
-
-        const listaOrdenada = Object.keys(mapaGastos)
-            .map(desc => ({ desc, valor: mapaGastos[desc] }))
-            .sort((a, b) => b.valor - a.valor);
-
-        if (listaOrdenada.length > 0) {
-            const maiorValor = listaOrdenada[0].valor;
-
-            listaOrdenada.forEach(item => {
-                const alturaCalculada = maiorValor > 0 ? (item.valor / maiorValor) * 200 : 0;
-
-                containerTorres.innerHTML += `
-                    <div class="torre-container">
-                        <div class="torre-valor">R$ ${item.valor.toFixed(0)}</div>
-                        <div class="torre" style="height: ${Math.max(alturaCalculada, 6)}px;" title="${item.desc}: R$ ${item.valor.toFixed(2)}"></div>
-                        <div class="torre-rotulo" title="${item.desc}">${item.desc}</div>
-                    </div>`;
-            });
-        } else {
-            containerTorres.innerHTML = '<p style="color:#888; font-size:14px; padding: 20px;">Nenhuma despesa encontrada para os filtros selecionados.</p>';
-        }
-
-        // Cartões
-        cartoes.forEach(c => {
-            const fatura = lancamentos.filter(l => {
-                const mesmaMes = l.origem === c.nome && l.vencimento.startsWith(mes);
-                const mesmaBusca = !buscaOrigem || String(l.origem).toUpperCase().includes(buscaOrigem);
-                const mesmaSelecao = origemF === 'tudo' || l.origem === origemF;
-                return mesmaMes && mesmaBusca && mesmaSelecao;
-            });
-
-            const total = fatura.reduce((a, b) => a + b.valor, 0);
-
-            if(total > 0) {
-                const pend = fatura.some(l => !l.pago);
-                document.getElementById('dash-cartoes').innerHTML += `
-                    <div class="card-cartao">
-                        <h4 style="margin:0">${c.nome}</h4>
-                        <p style="margin:5px 0">R$ ${total.toFixed(2)}</p>
-                        <small>Venc. Dia ${c.dia}</small><br>
-                        ${pend ? `<button class="btn-pagar-tudo" style="background:white; color:var(--purple); border:none; padding:4px 8px; border-radius:4px; font-size:12px; cursor:pointer; margin-top:5px;" onclick="quitarFatura('${c.nome}')">Quitar Mês</button>` : '<span style="font-size:11px">✅ Paga</span>'}
-                    </div>`;
+        // TOTAIS DO MÊS SELECIONADO
+        lancamentos.filter(l => mes ? l.vencimento.startsWith(mes) : true).forEach(l => {
+            if (l.tipo === 'receita') {
+                if (l.pago) rOk += l.valor;
+                else rPen += l.valor;
+            } else {
+                if (l.pago) dOk += l.valor;
+                else dPen += l.valor;
             }
         });
 
-        document.getElementById('total-rec-ok').innerText = `R$ ${rOK.toFixed(2)}`;
-        document.getElementById('total-rec-pen').innerText = `R$ ${rPEN.toFixed(2)}`;
-        document.getElementById('total-des-ok').innerText = `R$ ${dOK.toFixed(2)}`;
-        document.getElementById('total-des-pen').innerText = `R$ ${dPEN.toFixed(2)}`;
-        document.getElementById('total-saldo').innerText = `R$ ${(rOK - dOK).toFixed(2)}`;
+        receitasExtra.filter(r => mes ? r.data.startsWith(mes) : true).forEach(r => {
+            if (r.status === 'recebido') rOk += r.valor;
+            else rPen += r.valor;
+        });
+
+        document.getElementById('total-rec-ok').innerText = formatarMoeda(rOk);
+        document.getElementById('total-rec-pen').innerText = formatarMoeda(rPen);
+        document.getElementById('total-des-ok').innerText = formatarMoeda(dOk);
+        document.getElementById('total-des-pen').innerText = formatarMoeda(dPen);
+
+        // SALDO ATUAL DO MÊS (Receitas Recebidas no mês - Despesas Pagas no mês)
+        const saldoDinamicoMes = rOk - dOk;
+        const elSaldoDinamico = document.getElementById('total-saldo-dinamico');
+        elSaldoDinamico.innerText = formatarMoeda(saldoDinamicoMes);
+        elSaldoDinamico.style.color = saldoDinamicoMes >= 0 ? '#ffffff' : '#fca5a5';
+
+        // SALDO ACUMULADO (Todas as Receitas da história - Todas as Despesas da história até o mês)
+        let totalReceitasAcumuladas = 0;
+        let totalDespesasAcumuladas = 0;
+
+        lancamentos.filter(l => mes ? l.vencimento <= (mes + "-31") : true).forEach(l => {
+            if (l.tipo === 'receita') {
+                totalReceitasAcumuladas += l.valor;
+            } else {
+                totalDespesasAcumuladas += l.valor;
+            }
+        });
+
+        receitasExtra.filter(r => mes ? r.data <= (mes + "-31") : true).forEach(r => {
+            totalReceitasAcumuladas += r.valor;
+        });
+
+        const saldoAcumuladoTotal = totalReceitasAcumuladas - totalDespesasAcumuladas;
+        const elSaldo = document.getElementById('total-saldo');
+        elSaldo.innerText = formatarMoeda(saldoAcumuladoTotal);
+        elSaldo.style.color = saldoAcumuladoTotal >= 0 ? '#4ade80' : '#f87171';
+
+        // Renderizar linhas da tabela
+        if (filtrados.length === 0) {
+            corpo.innerHTML = `<tr><td colspan="7" class="sem-dados">Nenhum lançamento encontrado para o período/filtro selecionado.</td></tr>`;
+        } else {
+            filtrados.forEach(l => {
+                const classeLinha = l.tipo === 'receita' ? 'linha-paga' : (l.pago ? '' : 'linha-pendente');
+                const tagStatus = l.pago
+                    ? `<span class="tag tag-pago">PAGO</span>`
+                    : `<span class="tag tag-pendente">PENDENTE</span>`;
+
+                const dataFmt = l.vencimento ? l.vencimento.split('-').reverse().join('/') : '-';
+
+                corpo.innerHTML += `
+                    <tr class="${classeLinha}">
+                        <td>${tagStatus}</td>
+                        <td><strong>${l.desc}</strong><br><small style="color:var(--muted)">${l.origem}</small></td>
+                        <td>${l.fornecedor || '-'}</td>
+                        <td>${l.categoria || '-'}</td>
+                        <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'var(--primary-dark)' : 'inherit'}">
+                            ${l.tipo === 'receita' ? '+ ' : ''}${formatarMoeda(l.valor)}
+                        </td>
+                        <td>${dataFmt}</td>
+                        <td>
+                            <button class="btn-acao btn-check" onclick="alternarStatus(${l.id})" title="Alternar Status">✓</button>
+                            <button class="btn-acao btn-edit" onclick="editarLancamento(${l.id})" title="Editar">✏️</button>
+                            <button class="btn-acao btn-del" onclick="deletar(${l.id})" title="Excluir">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        renderizarGraficoTorres(filtrados);
     }
 
-    // Lógica da Aba 3 (Receitas)
+    function renderizarGraficoTorres(dados) {
+        const container = document.getElementById('container-torres');
+        container.innerHTML = '';
+
+        const despesas = dados.filter(l => l.tipo !== 'receita');
+        const totaisPorCategoria = {};
+
+        despesas.forEach(l => {
+            const cat = l.categoria || 'Outros';
+            totaisPorCategoria[cat] = (totaisPorCategoria[cat] || 0) + l.valor;
+        });
+
+        const categorias = Object.keys(totaisPorCategoria);
+        if (categorias.length === 0) {
+            container.innerHTML = `<div class="sem-dados" style="width:100%">Sem despesas para exibir no gráfico.</div>`;
+            return;
+        }
+
+        const maiorValor = Math.max(...Object.values(totaisPorCategoria));
+
+        categorias.sort((a, b) => totaisPorCategoria[b] - totaisPorCategoria[a]).forEach(cat => {
+            const val = totaisPorCategoria[cat];
+            const pct = maiorValor > 0 ? (val / maiorValor) * 200 : 5;
+
+            container.innerHTML += `
+                <div class="torre-container">
+                    <div class="torre-valor">${formatarMoeda(val)}</div>
+                    <div class="torre" style="height: ${Math.max(pct, 6)}px;"></div>
+                    <div class="torre-rotulo" title="${cat}">${cat}</div>
+                </div>
+            `;
+        });
+    }
+
     function abrirNovaReceita() {
-        document.getElementById('formReceita').style.display = 'block';
-    }
-
-    function fecharFormReceita() {
-        document.getElementById('formReceita').style.display = 'none';
+        receitaEditando = null;
+        document.getElementById('tituloReceita').innerText = "➕ Nova Receita";
         document.getElementById('recDescricao').value = '';
         document.getElementById('recCliente').value = '';
         document.getElementById('recValor').value = '';
         document.getElementById('recCategoria').value = '';
         document.getElementById('recFormaPagamento').value = '';
+        document.getElementById('recStatus').value = 'pendente';
+        document.getElementById('formReceita').style.display = 'block';
+    }
+
+    function fecharFormReceita() {
+        document.getElementById('formReceita').style.display = 'none';
+        receitaEditando = null;
     }
 
     function salvarReceita() {
@@ -720,159 +796,164 @@
         const data = document.getElementById('recData').value;
         const status = document.getElementById('recStatus').value;
 
-        if(!desc || !valor || valor <= 0 || !data) return alert("Preencha descrição, valor e data!");
+        if (!desc || !valor || !data) return alert("Preencha descrição, valor e data da receita!");
 
-        receitasExtra.push({
-            id: Date.now(),
-            desc, cliente, valor, categoria, pagamento, data, status
-        });
+        if (receitaEditando !== null) {
+            const idx = receitasExtra.findIndex(r => r.id === receitaEditando.id);
+            if (idx !== -1) {
+                receitasExtra[idx] = { id: receitaEditando.id, desc, cliente, valor, categoria, pagamento, data, status };
+            }
+        } else {
+            receitasExtra.push({ id: Date.now(), desc, cliente, valor, categoria, pagamento, data, status });
+        }
 
         fecharFormReceita();
         renderizarReceitas();
+        renderizar();
+    }
+
+    function editarReceita(id) {
+        const r = receitasExtra.find(x => x.id === id);
+        if (!r) return;
+        receitaEditando = r;
+
+        document.getElementById('tituloReceita').innerText = "✏️ Editando Receita";
+        document.getElementById('recDescricao').value = r.desc;
+        document.getElementById('recCliente').value = r.cliente || '';
+        document.getElementById('recValor').value = r.valor;
+        document.getElementById('recCategoria').value = r.categoria || '';
+        document.getElementById('recFormaPagamento').value = r.pagamento || '';
+        document.getElementById('recData').value = r.data;
+        document.getElementById('recStatus').value = r.status;
+
+        document.getElementById('formReceita').style.display = 'block';
     }
 
     function alternarStatusReceita(id) {
         const idx = receitasExtra.findIndex(r => r.id === id);
-        if(idx !== -1) {
+        if (idx !== -1) {
             receitasExtra[idx].status = receitasExtra[idx].status === 'recebido' ? 'pendente' : 'recebido';
             renderizarReceitas();
+            renderizar();
         }
     }
 
     function deletarReceita(id) {
-        if(confirm("Excluir esta receita?")) {
+        if (confirm("Excluir esta receita?")) {
             receitasExtra = receitasExtra.filter(r => r.id !== id);
             renderizarReceitas();
+            renderizar();
         }
     }
 
     function renderizarReceitas() {
-        const busca = (document.getElementById('buscaReceita')?.value || '').toLowerCase();
+        const mes = document.getElementById('filtroMes').value;
+        const busca = (document.getElementById('buscaReceita')?.value || '').trim().toUpperCase();
         const catFiltro = document.getElementById('filtroCategoriaReceita')?.value || '';
         const corpo = document.getElementById('corpoReceitas');
-        if(!corpo) return;
 
-        corpo.innerHTML = '';
+        let rOk = 0, rPen = 0, total = 0, qtd = 0;
 
-        // Receitas cadastradas na aba "Lista de Receitas"
-        // + receitas feitas diretamente em "Novo Lançamento".
-        const receitasDoLancamento = lancamentos
-            .filter(l => l.tipo === 'receita')
-            .map(l => ({
-                id: `lancamento_${l.id}`,
-                idLancamento: l.id,
-                desc: l.desc,
-                cliente: l.fornecedor || '',
-                categoria: 'Receita (Ganho)',
-                pagamento: l.origem || 'Entrada',
-                valor: Number(l.valor) || 0,
-                data: l.vencimento,
-                status: l.pago ? 'recebido' : 'pendente',
-                origemLancamento: true
-            }));
+        const filtradas = receitasExtra.filter(r => {
+            const baterMes = mes ? r.data.startsWith(mes) : true;
+            const baterCat = !catFiltro || r.categoria === catFiltro;
 
-        const todasReceitas = [...receitasExtra, ...receitasDoLancamento];
+            const termo = busca;
+            const descMatch = (r.desc || '').toUpperCase().includes(termo);
+            const cliMatch = (r.cliente || '').toUpperCase().includes(termo);
+            const catMatch = (r.categoria || '').toUpperCase().includes(termo);
+            const baterBusca = !termo || descMatch || cliMatch || catMatch;
 
-        let ok = 0, pen = 0, total = 0, qtd = 0;
-
-        const filtradas = todasReceitas.filter(r => {
-            const combinaBusca =
-                !busca ||
-                String(r.desc || '').toLowerCase().includes(busca) ||
-                String(r.cliente || '').toLowerCase().includes(busca) ||
-                String(r.categoria || '').toLowerCase().includes(busca);
-
-            const combinaCat = !catFiltro || r.categoria === catFiltro;
-            return combinaBusca && combinaCat;
+            return baterMes && baterCat && baterBusca;
         });
 
-        filtradas
-            .sort((a,b) => new Date(a.data) - new Date(b.data))
-            .forEach(r => {
-                const valor = Number(r.valor) || 0;
-                total += valor;
-                qtd++;
+        filtradas.sort((a, b) => new Date(a.data) - new Date(b.data));
 
-                if(r.status === 'recebido') ok += valor;
-                else pen += valor;
+        filtradas.forEach(r => {
+            total += r.valor;
+            qtd++;
+            if (r.status === 'recebido') rOk += r.valor;
+            else rPen += r.valor;
+        });
 
-                const acaoStatus = r.origemLancamento
-                    ? `alternarStatus(${r.idLancamento})`
-                    : `alternarStatusReceita(${r.id})`;
+        document.getElementById('receitas-ok').innerText = formatarMoeda(rOk);
+        document.getElementById('receitas-pendentes').innerText = formatarMoeda(rPen);
+        document.getElementById('receitas-total').innerText = formatarMoeda(total);
+        document.getElementById('receitas-qtd').innerText = qtd;
 
-                const acaoExcluir = r.origemLancamento
-                    ? `deletar(${r.idLancamento})`
-                    : `deletarReceita(${r.id})`;
-
-                corpo.innerHTML += `
-                    <tr class="${r.status === 'recebido' ? 'linha-paga' : ''}">
-                        <td>
-                            <span class="tag ${r.status === 'recebido' ? 'tag-pago' : 'tag-pendente'}"
-                                  onclick="${acaoStatus}" style="cursor:pointer">
-                                ${r.status === 'recebido' ? 'OK' : 'PEND'}
-                            </span>
-                        </td>
-                        <td>
-                            ${r.desc}
-                            ${r.origemLancamento
-                                ? '<small style="color:#16a085;font-weight:bold;"> • Lançamento</small>'
-                                : ''}
-                        </td>
-                        <td>${r.cliente || '-'}</td>
-                        <td>${r.categoria || '-'}</td>
-                        <td>${r.pagamento || '-'}</td>
-                        <td style="font-weight:bold; color:green">R$ ${valor.toFixed(2)}</td>
-                        <td>${r.data ? r.data.split('-').reverse().join('/') : '-'}</td>
-                        <td>
-                            <button class="btn-acao btn-check" onclick="${acaoStatus}">
-                                ${r.status === 'recebido' ? '😎 Recebido' : '✔ OK'}
-                            </button>
-                            <button class="btn-acao btn-del" onclick="${acaoExcluir}">🗑</button>
-                        </td>
-                    </tr>`;
-            });
-
-        if(filtradas.length === 0) {
-            corpo.innerHTML = '<tr><td colspan="8" class="sem-dados">Nenhuma receita cadastrada.</td></tr>';
+        corpo.innerHTML = '';
+        if (filtradas.length === 0) {
+            corpo.innerHTML = `<tr><td colspan="8" class="sem-dados">Nenhuma receita registrada neste período/filtro.</td></tr>`;
+            return;
         }
 
-        document.getElementById('receitas-ok').innerText = `R$ ${ok.toFixed(2)}`;
-        document.getElementById('receitas-pendentes').innerText = `R$ ${pen.toFixed(2)}`;
-        document.getElementById('receitas-total').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('receitas-qtd').innerText = qtd;
+        filtradas.forEach(r => {
+            const statusTag = r.status === 'recebido'
+                ? `<span class="tag tag-pago">RECEBIDO</span>`
+                : `<span class="tag tag-pendente">PENDENTE</span>`;
+
+            const dataFmt = r.data ? r.data.split('-').reverse().join('/') : '-';
+
+            corpo.innerHTML += `
+                <tr class="${r.status === 'recebido' ? 'linha-paga' : 'linha-pendente'}">
+                    <td>${statusTag}</td>
+                    <td><strong>${r.desc}</strong></td>
+                    <td>${r.cliente || '-'}</td>
+                    <td>${r.categoria || '-'}</td>
+                    <td>${r.pagamento || '-'}</td>
+                    <td style="font-weight:bold; color:var(--primary-dark)">+ ${formatarMoeda(r.valor)}</td>
+                    <td>${dataFmt}</td>
+                    <td>
+                        <button class="btn-acao btn-check" onclick="alternarStatusReceita(${r.id})" title="Alternar Status">✓</button>
+                        <button class="btn-acao btn-edit" onclick="editarReceita(${r.id})" title="Editar">✏️</button>
+                        <button class="btn-acao btn-del" onclick="deletarReceita(${r.id})" title="Excluir">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
     }
 
-    // Backup e Importação
     function exportarDados() {
         const dados = {
             lancamentos,
             cartoes,
-            receitasExtra
+            receitasExtra,
+            versao: "12.7",
+            dataExportacao: new Date().toISOString()
         };
-        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_financeiro_${new Date().toISOString().substring(0,10)}.json`;
-        a.click();
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dados, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `Backup_Financeiro_${new Date().toISOString().substring(0, 10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
     }
 
-    function processarImport(e) {
-        const file = e.target.files[0];
-        if(!file) return;
+    function processarImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (evt) => {
+        reader.onload = function(e) {
             try {
-                const dados = JSON.parse(evt.target.result);
-                if(dados.lancamentos) lancamentos = dados.lancamentos;
-                if(dados.cartoes) cartoes = dados.cartoes;
-                if(dados.receitasExtra) receitasExtra = dados.receitasExtra;
-                alert("Backup restaurado com sucesso!");
-                renderizar();
-                renderizarReceitas();
-            } catch(err) {
-                alert("Erro ao ler arquivo de backup inválido.");
+                const importedData = JSON.parse(e.target.result);
+                if (importedData.lancamentos || importedData.cartoes || importedData.receitasExtra) {
+                    if (confirm("Restaurar este backup irá substituir todos os dados atuais da memória. Deseja continuar?")) {
+                        lancamentos = importedData.lancamentos || [];
+                        cartoes = importedData.cartoes || [];
+                        receitasExtra = importedData.receitasExtra || [];
+
+                        renderizar();
+                        renderizarReceitas();
+                        alert("Backup carregado na memória com sucesso!");
+                    }
+                } else {
+                    alert("Arquivo de backup inválido ou incompatível.");
+                }
+            } catch (err) {
+                alert("Erro ao ler o arquivo JSON: " + err.message);
             }
         };
         reader.readAsText(file);
