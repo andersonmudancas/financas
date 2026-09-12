@@ -134,6 +134,21 @@
         .mini-card { background:#f7f9f9; border:1px solid #e5e8e8; border-radius:8px; padding:12px; text-align:center; }
         .mini-card strong { display:block; font-size:18px; margin-top:4px; }
         .sem-dados { text-align:center; color:#888; padding:25px; }
+    
+        .filtros-topo > div { min-width:0; flex:1; }
+        #buscaOrigem { min-width:0; width:100%; }
+        .grid-form > * { min-width:0; }
+        @media (max-width: 599px) {
+            .container { padding:12px; margin:8px auto; border-radius:14px; }
+            .section { padding:13px; }
+            .grid-form { grid-template-columns:1fr; }
+            .filtros-topo { grid-template-columns:1fr; padding:10px; }
+            .filtros-topo input, .filtros-topo select { font-size:13px; padding:10px; }
+            .dashboard { grid-template-columns:1fr 1fr; }
+            .card { padding:11px 8px; }
+            .card p { font-size:1em; }
+        }
+
     </style>
 </head>
 <body>
@@ -161,11 +176,11 @@
             
             <div class="filtros-topo">
                 <div>
-                    <small>🔎 Buscar por origem:</small>
-                    <input type="text" id="buscaOrigem" placeholder="Ex.: Dinheiro, Nubank..." oninput="renderizar()">
+                    <small>🔎 Buscar gastos</small>
+                    <input type="text" id="buscaOrigem" placeholder="Descrição, fornecedor, categoria, cartão..." oninput="renderizar()">
                 </div>
                 <div>
-                    <small>💳 Forma de pagamento:</small>
+                    <small>💳 Forma / cartão:</small>
                     <select id="filtroOrigem" onchange="renderizar()"></select>
                 </div>
                 <div>
@@ -191,6 +206,21 @@
             <div class="grid-form">
                 <input type="text" id="desc" placeholder="Descrição do lançamento">
                 <input type="text" id="fornecedor" placeholder="Fornecedor">
+                <select id="categoriaLancamento">
+                    <option value="">📂 Categoria</option>
+                    <option>Combustível</option>
+                    <option>Pedágio</option>
+                    <option>Alimentação</option>
+                    <option>Manutenção</option>
+                    <option>Mercado</option>
+                    <option>Casa</option>
+                    <option>Contas</option>
+                    <option>Cartão</option>
+                    <option>Impostos</option>
+                    <option>Fornecedor</option>
+                    <option>Funcionários</option>
+                    <option>Outros</option>
+                </select>
                 <input type="number" id="valor" placeholder="Valor R$" step="0.01">
                 <select id="tipo" onchange="toggleCartao()">
                     <option value="fixo">Dinheiro / Pix</option>
@@ -235,7 +265,7 @@
 
         <div id="aba-grafico" class="aba-conteudo">
             <div class="section" style="background:#fff;">
-                <h4 style="margin:0 0 15px 0;">Ranking de Despesas por Descrição</h4>
+                <h4 style="margin:0 0 15px 0;">Ranking de Gastos por Categoria</h4>
                 <div class="grafico-torres-wrapper">
                     <div id="container-torres" class="grafico-torres"></div>
                 </div>
@@ -389,6 +419,7 @@
     function limparCampos() {
         document.getElementById('desc').value = '';
         document.getElementById('fornecedor').value = '';
+        document.getElementById('categoriaLancamento').value = '';
         document.getElementById('valor').value = '';
         document.getElementById('parcelas').value = 1;
         document.getElementById('tipo').value = 'fixo';
@@ -399,13 +430,14 @@
     function adicionarLancamento() {
         const desc = document.getElementById('desc').value.trim();
         const fornecedor = document.getElementById('fornecedor').value.trim();
+        const categoria = document.getElementById('categoriaLancamento').value;
         const valorInp = document.getElementById('valor').value;
         const tipo = document.getElementById('tipo').value;
         const parc = parseInt(document.getElementById('parcelas').value) || 1;
         const dataInp = document.getElementById('dataBase').value;
         const cart = document.getElementById('selectCartao').value;
 
-        if(!desc || !fornecedor || !valorInp || !dataInp) return alert("Preencha descrição, fornecedor, valor e data!");
+        if(!desc || !fornecedor || !categoria || !valorInp || !dataInp) return alert("Preencha descrição, fornecedor, categoria, valor e data!");
 
         if(itemEditando !== null) {
             const grupoItems = lancamentos.filter(l => l.idGrupo === itemEditando.idGrupo);
@@ -420,6 +452,7 @@
                     if(l.idGrupo === itemEditando.idGrupo) {
                         l.desc = l.desc.includes('(') ? `${desc} ${l.desc.substring(l.desc.lastIndexOf('('))}` : desc;
                         l.fornecedor = fornecedor;
+                        l.categoria = categoria;
                         l.valor = parseFloat(valorInp);
                         l.tipo = tipo;
                         l.origem = tipo === 'cartao' ? cart : (tipo === 'receita' ? 'Entrada' : 'Dinheiro');
@@ -481,6 +514,7 @@
         
         document.getElementById('desc').value = l.desc.split(' (')[0];
         document.getElementById('fornecedor').value = l.fornecedor || '';
+        document.getElementById('categoriaLancamento').value = l.categoria || '';
         document.getElementById('valor').value = l.valor;
         document.getElementById('tipo').value = l.tipo;
         document.getElementById('dataBase').value = l.vencimento;
@@ -569,8 +603,13 @@
         const filtrados = lancamentos.filter(l => {
             const mesmaMes = l.vencimento.startsWith(mes);
             const mesmaOrigem = origemF === 'tudo' || l.origem === origemF;
-            const origemContemBusca = !buscaOrigem || String(l.origem).toUpperCase().includes(buscaOrigem);
-            return mesmaMes && mesmaOrigem && origemContemBusca;
+            const textoBusca = [l.desc, l.fornecedor, l.categoria, l.origem,
+                l.tipo === 'cartao' ? 'CARTÃO DE CRÉDITO' : '',
+                l.tipo === 'fixo' ? 'DINHEIRO PIX' : '',
+                l.tipo === 'receita' ? 'RECEITA' : ''
+            ].map(v => String(v || '').toUpperCase()).join(' ');
+            const buscaCompleta = !buscaOrigem || textoBusca.includes(buscaOrigem);
+            return mesmaMes && mesmaOrigem && buscaCompleta;
         });
 
         const mapaGastos = {};
@@ -583,8 +622,8 @@
                 } else {
                     l.pago ? dOK += l.valor : dPEN += l.valor;
 
-                    const descLimpa = l.desc.split(' (')[0].toUpperCase().trim();
-                    mapaGastos[descLimpa] = (mapaGastos[descLimpa] || 0) + l.valor;
+                    const categoriaGrafico = (l.categoria || 'SEM CATEGORIA').toUpperCase().trim();
+                    mapaGastos[categoriaGrafico] = (mapaGastos[categoriaGrafico] || 0) + l.valor;
                 }
 
                 corpo.innerHTML += `
@@ -592,7 +631,7 @@
                         <td><span class="tag ${l.pago ? 'tag-pago' : 'tag-pendente'}" onclick="alternarStatus(${l.id})" style="cursor:pointer">${l.pago ? 'OK' : 'PEND'}</span></td>
                         <td>${l.desc}</td>
                         <td><strong>${l.fornecedor || '-'}</strong></td>
-                        <td class="${buscaOrigem && String(l.origem).toUpperCase().includes(buscaOrigem) ? 'origem-encontrada' : ''}">${l.origem}</td>
+                        <td>${l.categoria || '-'}</td>
                         <td style="font-weight:bold; color:${l.tipo === 'receita' ? 'green' : 'inherit'}">R$ ${l.valor.toFixed(2)}</td>
                         <td>${l.vencimento.split('-')[2]}</td>
                         <td>
